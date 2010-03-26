@@ -2,10 +2,17 @@ require 'mime/types'
 require 'wand'
 
 module Joint
+  autoload :Version, 'joint/version'
+
+  def self.file_name(file)
+    file.respond_to?(:original_filename) ? file.original_filename : File.basename(file.path)
+  end
+
   module ClassMethods
     def attachment(name)
-      write_inheritable_attribute(:attachment_definitions, {}) if attachment_definitions.nil?
-      attachment_definitions[name] = {}
+      self.class.class_inheritable_accessor :attachment_names
+      self.class.attachment_names ||= []
+      self.class.attachment_names << name
 
       after_save     :save_attachments
       before_destroy :destroy_attached_files
@@ -16,48 +23,80 @@ module Joint
       key "#{name}_type".to_sym, String
 
       define_method(name) do
-        self.class.grid.get(self["#{name}_id"])
+        AttachmentProxy.new(self, name)
       end
 
       define_method("#{name}=") do |file|
-        self["#{name}_id"]   = Mongo::ObjectID.new
-        self["#{name}_size"] = File.size(file)
-        self["#{name}_type"] = Wand.wave(file.path)
-        self["#{name}_name"] = if file.respond_to?(:original_filename)
-          file.original_filename
-        else
-          File.basename(file.path)
-        end
-        self.class.attachment_definitions[name] = file
+        self["#{name}_id"]           = Mongo::ObjectID.new
+        self["#{name}_size"]         = File.size(file)
+        self["#{name}_type"]         = Wand.wave(file.path)
+        self["#{name}_name"]         = Joint.file_name(file)
+        attachment_assignments[name] = file
       end
     end
-
+    
     def grid
       @grid ||= Mongo::Grid.new(database)
-    end
-
-    def attachment_definitions
-      read_inheritable_attribute(:attachment_definitions)
     end
   end
 
   module InstanceMethods
+    def attachment_assignments
+      @attachment_assignments ||= {}
+    end
+
+    def grid
+      self.class.grid
+    end
+
     private
       def save_attachments
-        self.class.attachment_definitions.each do |attachment|
+        attachment_assignments.each do |attachment|
           name, file = attachment
           content_type = self["#{name}_type"]
 
           if file.respond_to?(:read)
-            self.class.grid.put(file.read, self["#{name}_name"], :content_type => content_type, :_id => self["#{name}_id"])
+            grid.put(file.read, self["#{name}_name"], :content_type => content_type, :_id => self["#{name}_id"])
           end
         end
+
+        @attachment_assignments.clear
       end
 
       def destroy_attached_files
-        self.class.attachment_definitions.each do |name, attachment|
-          self.class.grid.delete(self["#{name}_id"])
+        self.class.attachment_names.each do |name|
+          grid.delete(self["#{name}_id"])
         end
       end
+  end
+
+  class AttachmentProxy
+    def initialize(instance, name)
+      @instance, @name = instance, name
+    end
+
+    def id
+      @instance.send("#{@name}_id")
+    end
+
+    def name
+      @instance.send("#{@name}_name")
+    end
+
+    def size
+      @instance.send("#{@name}_size")
+    end
+
+    def type
+      @instance.send("#{@name}_type")
+    end
+
+    def grid_io
+      @grid_io ||= @instance.grid.get(id)
+    end
+
+    def method_missing(method, *args, &block)
+      grid_io.send(method, *args, &block)
+    end
   end
 end

@@ -13,7 +13,7 @@ class JointTest < Test::Unit::TestCase
     MongoMapper.database.collections.each(&:remove)
     @grid = Mongo::Grid.new(MongoMapper.database)
 
-    dir    = File.dirname(__FILE__) + '/fixtures'    
+    dir    = File.dirname(__FILE__) + '/fixtures'
     @pdf   = File.open("#{dir}/unixref.pdf",  'r')
     @image = File.open("#{dir}/mr_t.jpg", 'r')
 
@@ -29,25 +29,49 @@ class JointTest < Test::Unit::TestCase
     @image.close
   end
 
+  test "assigns grid fs content type correctly" do
+    assert_equal "image/jpeg",      @grid.get(@doc.image_id).content_type
+    assert_equal "application/pdf", @grid.get(@doc.pdf_id).content_type
+  end
+
   test "assigns keys correctly" do
     assert_equal 13661, @doc.image_size
     assert_equal 68926,  @doc.pdf_size
 
-    assert_equal "image/jpeg",       @doc.image_type
+    assert_equal "image/jpeg",      @doc.image_type
     assert_equal "application/pdf", @doc.pdf_type
 
     assert_not_nil @doc.image_id
     assert_not_nil @doc.pdf_id
+
     assert_kind_of Mongo::ObjectID, @doc.image_id
     assert_kind_of Mongo::ObjectID, @doc.pdf_id
+  end
 
-    assert_equal "image/jpeg", @grid.get(@doc.image_id).content_type
-    assert_equal "application/pdf", @grid.get(@doc.pdf_id).content_type
+  test "accessing keys through attachment proxy" do
+    assert_equal 13661, @doc.image.size
+    assert_equal 68926,  @doc.pdf.size
+
+    assert_equal "image/jpeg",      @doc.image.type
+    assert_equal "application/pdf", @doc.pdf.type
+
+    assert_not_nil @doc.image.id
+    assert_not_nil @doc.pdf.id
+
+    assert_kind_of Mongo::ObjectID, @doc.image.id
+    assert_kind_of Mongo::ObjectID, @doc.pdf.id
+  end
+
+  test "sends unknown proxy methods to grid io object" do
+    assert_equal 13661,         @doc.image.file_length
+    assert_equal 'image/jpeg',  @doc.image.content_type
+    assert_equal 'mr_t.jpg',    @doc.image.filename
+    assert_equal @doc.image_id, @doc.image.files_id
   end
 
   test "assigns file name from path if original file name not available" do
-    assert_equal 'mr_t.jpg', @doc.image_name
-    assert_equal 'unixref.pdf',  @doc.pdf_name
+    assert_equal 'mr_t.jpg',    @doc.image_name
+    assert_equal 'unixref.pdf', @doc.pdf_name
   end
 
   test "assigns file name from original filename if available" do
@@ -56,7 +80,6 @@ class JointTest < Test::Unit::TestCase
       def file.original_filename
         'testing.txt'
       end
-      
       doc = Foo.create(:image => file)
       assert_equal 'testing.txt', doc.image_name
     ensure
