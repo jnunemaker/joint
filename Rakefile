@@ -14,14 +14,16 @@ Jeweler::Tasks.new do |gem|
   gem.homepage    = "http://github.com/jnunemaker/joint"
   gem.authors     = ["John Nunemaker"]
   gem.version     = Joint::Version
-
+  gem.files       = FileList['lib/**/*.rb', 'bin/*', '[A-Z]*', 'test/**/*'].to_a
+  gem.test_files  = FileList['test/**/*'].to_a
+  
   gem.add_dependency 'wand', '>= 0.2.1'
   gem.add_dependency 'mime-types'
 
   gem.add_development_dependency 'jeweler'
+  gem.add_development_dependency 'mongo_mapper'
 end
 Jeweler::GemcutterTasks.new
-
 
 Rake::TestTask.new(:test) do |test|
   test.libs      << 'lib' << 'test'
