@@ -14,11 +14,10 @@ Jeweler::Tasks.new do |gem|
   gem.homepage    = "http://github.com/jnunemaker/joint"
   gem.authors     = ["John Nunemaker"]
   gem.version     = Joint::Version
-  
+
   gem.add_dependency 'wand', '>= 0.2.1'
-  
-  gem.add_development_dependency 'thoughtbot-shoulda'
-  gem.add_development_dependency 'yard'
+  gem.add_dependency 'mime-types'
+
   gem.add_development_dependency 'jeweler'
 end
 Jeweler::GemcutterTasks.new
@@ -33,5 +32,3 @@ end
 
 task :test    => :check_dependencies
 task :default => :test
-
-YARD::Rake::YardocTask.new
