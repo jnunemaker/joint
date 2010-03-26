@@ -34,10 +34,6 @@ module Joint
         attachment_assignments[name] = file
       end
     end
-    
-    def grid
-      @grid ||= Mongo::Grid.new(database)
-    end
   end
 
   module InstanceMethods
@@ -46,7 +42,7 @@ module Joint
     end
 
     def grid
-      self.class.grid
+      @grid ||= Mongo::Grid.new(database)
     end
 
     private
