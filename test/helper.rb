@@ -1,7 +1,6 @@
 require 'test/unit'
 require 'tempfile'
 require 'pp'
-
 require 'mongo_mapper'
 
 require File.expand_path(File.dirname(__FILE__) + '/../lib/joint')
