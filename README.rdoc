@@ -1,6 +1,6 @@
 = Joint
 
-MongoMapper and GridFS united in file upload love.
+MongoMapper and GridFS joined in file upload love.
 
 == Usage
 
