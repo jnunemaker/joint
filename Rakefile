@@ -8,8 +8,8 @@ require File.join(File.dirname(__FILE__), 'lib', 'joint', 'version')
 
 Jeweler::Tasks.new do |gem|
   gem.name        = "joint"
-  gem.summary     = %Q{MongoMapper and GridFS united in file upload love.}
-  gem.description = %Q{MongoMapper and GridFS united in file upload love.}
+  gem.summary     = %Q{MongoMapper and GridFS joined in file upload love.}
+  gem.description = %Q{MongoMapper and GridFS joined in file upload love.}
   gem.email       = "nunemaker@gmail.com"
   gem.homepage    = "http://github.com/jnunemaker/joint"
   gem.authors     = ["John Nunemaker"]
