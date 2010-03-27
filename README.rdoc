@@ -22,11 +22,6 @@ Also, #image and #pdf are proxies so you can do stuff like:
 
 If you call a method other than those in the proxy it calls it on the GridIO instance so you can still get at all the GridIO instance methods.
 
-== Dependencies
-
-* MongoMapper >= 0.7 - gem install mongo_mapper
-* Wand >= 0.2.1 - gem install wand
-
 == Note on Patches/Pull Requests
  
 * Fork the project.
