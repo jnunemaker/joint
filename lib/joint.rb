@@ -10,7 +10,7 @@ module Joint
 
   module ClassMethods
     def attachment(name)
-      self.class.class_inheritable_accessor :attachment_names
+      self.class.class_inheritable_accessor :attachment_names unless self.class.respond_to?(:attachment_names)
       self.class.attachment_names ||= []
       self.class.attachment_names << name
 
@@ -22,17 +22,21 @@ module Joint
       key "#{name}_size".to_sym, Integer
       key "#{name}_type".to_sym, String
 
-      define_method(name) do
-        AttachmentProxy.new(self, name)
-      end
+      code = <<-EOC
+        def #{name}
+          @#{name} ||= AttachmentProxy.new(self, :#{name})
+        end
 
-      define_method("#{name}=") do |file|
-        self["#{name}_id"]           = Mongo::ObjectID.new
-        self["#{name}_size"]         = File.size(file)
-        self["#{name}_type"]         = Wand.wave(file.path)
-        self["#{name}_name"]         = Joint.file_name(file)
-        attachment_assignments[name] = file
-      end
+        def #{name}=(file)
+          self["#{name}_id"]               = Mongo::ObjectID.new
+          self["#{name}_size"]             = File.size(file)
+          self["#{name}_type"]             = Wand.wave(file.path)
+          self["#{name}_name"]             = Joint.file_name(file)
+          attachment_assignments[:#{name}] = file
+        end
+      EOC
+
+      class_eval(code)
     end
   end
 
@@ -48,9 +52,8 @@ module Joint
     private
       def save_attachments
         attachment_assignments.each do |attachment|
-          name, file = attachment
+          name, file   = attachment
           content_type = self["#{name}_type"]
-
           if file.respond_to?(:read)
             grid.put(file.read, self["#{name}_name"], :content_type => content_type, :_id => self["#{name}_id"])
           end
@@ -60,9 +63,7 @@ module Joint
       end
 
       def destroy_attached_files
-        self.class.attachment_names.each do |name|
-          grid.delete(self["#{name}_id"])
-        end
+        self.class.attachment_names.each { |name| self.send(name).delete }
       end
   end
 
@@ -89,6 +90,11 @@ module Joint
 
     def grid_io
       @grid_io ||= @instance.grid.get(id)
+    end
+
+    def delete
+      @grid_io = nil
+      @instance.grid.delete(id)
     end
 
     def method_missing(method, *args, &block)
