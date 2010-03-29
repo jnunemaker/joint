@@ -86,6 +86,18 @@ class JointTest < Test::Unit::TestCase
     end
   end
 
+  context "Assigning file with where file pointer is not at beginning" do
+    setup do
+      @image.read
+      @doc = Foo.create(:image => @image)
+      @doc.reload
+    end
+
+    should "rewind and correctly store contents" do
+      @doc.image.read.should == @image_contents
+    end
+  end
+
   context "Retrieving attachment that does not exist" do
     setup do
       @doc = Foo.create
