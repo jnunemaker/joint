@@ -5,12 +5,12 @@
 
 Gem::Specification.new do |s|
   s.name = %q{joint}
-  s.version = "0.1.1"
+  s.version = "0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["John Nunemaker"]
-  s.date = %q{2010-03-26}
-  s.description = %q{MongoMapper and GridFS united in file upload love.}
+  s.date = %q{2010-03-29}
+  s.description = %q{MongoMapper and GridFS joined in file upload love.}
   s.email = %q{nunemaker@gmail.com}
   s.extra_rdoc_files = [
     "README.rdoc"
@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.6}
-  s.summary = %q{MongoMapper and GridFS united in file upload love.}
+  s.summary = %q{MongoMapper and GridFS joined in file upload love.}
   s.test_files = [
     "test/fixtures",
      "test/fixtures/mr_t.jpg",
