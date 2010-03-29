@@ -12,12 +12,14 @@ end
 class JointTest < Test::Unit::TestCase
   def setup
     MongoMapper.database.collections.each(&:remove)
-    dir             = File.dirname(__FILE__) + '/fixtures'
-    @pdf            = File.open("#{dir}/unixref.pdf",  'r')
-    @image          = File.open("#{dir}/mr_t.jpg", 'r')
-    @pdf_contents   = File.read("#{dir}/unixref.pdf")
-    @image_contents = File.read("#{dir}/mr_t.jpg")
-    @grid           = Mongo::Grid.new(MongoMapper.database)
+
+    dir                = File.dirname(__FILE__) + '/fixtures'
+    @pdf               = File.open("#{dir}/unixref.pdf",  'r')
+    @image             = File.open("#{dir}/mr_t.jpg", 'r')
+    @pdf_contents      = File.read("#{dir}/unixref.pdf")
+    @image_contents    = File.read("#{dir}/mr_t.jpg")
+    @grid              = Mongo::Grid.new(MongoMapper.database)
+    @gridfs_collection = MongoMapper.database['fs.files']
   end
 
   def teardown
@@ -100,8 +102,9 @@ class JointTest < Test::Unit::TestCase
       @doc.pdf?.should be(true)
     end
 
-    should "clear assigned attachments" do
-      @doc.attachment_assignments.should == {}
+    should "clear assigned attachments so they don't get uploaded twice" do
+      Mongo::Grid.any_instance.expects(:put).never
+      @doc.save
     end
   end
 
@@ -133,6 +136,29 @@ class JointTest < Test::Unit::TestCase
     end
   end
 
+  context "Setting attachment to nil" do
+    setup do
+      @doc = Asset.create(:image => @image)
+    end
+
+    should "delete attachment after save" do
+      assert_no_difference '@gridfs_collection.find().count' do
+        @doc.image = nil
+      end
+
+      assert_difference '@gridfs_collection.find().count', -1 do
+        @doc.save
+      end
+    end
+    
+    should "clear nil attachments after save and not attempt to delete again" do
+      @doc.image = nil
+      @doc.save
+      Mongo::Grid.any_instance.expects(:delete).never
+      @doc.save
+    end
+  end
+
   context "Retrieving attachment that does not exist" do
     setup do
       @doc = Asset.create
@@ -153,7 +179,7 @@ class JointTest < Test::Unit::TestCase
     end
 
     should "remove files from grid fs as well" do
-      assert_difference "MongoMapper.database['fs.files'].find().count", -1 do
+      assert_difference "@gridfs_collection.find().count", -1 do
         @doc.destroy
       end
     end

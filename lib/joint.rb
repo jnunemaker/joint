@@ -1,3 +1,4 @@
+require 'set'
 require 'mime/types'
 require 'wand'
 
@@ -11,7 +12,8 @@ module Joint
       self.class.attachment_names << name
 
       after_save     :save_attachments
-      before_destroy :destroy_attached_files
+      after_save     :destroy_nil_attachments
+      before_destroy :destroy_all_attachments
 
       key "#{name}_id".to_sym,   ObjectId
       key "#{name}_name".to_sym, String
@@ -28,43 +30,53 @@ module Joint
         end
 
         def #{name}=(file)
-          self["#{name}_id"]               = Mongo::ObjectID.new
-          self["#{name}_size"]             = File.size(file)
-          self["#{name}_type"]             = Wand.wave(file.path)
-          self["#{name}_name"]             = Joint.file_name(file)
-          attachment_assignments[:#{name}] = file
+          if file.nil?
+            nil_attachments << :#{name}
+          else
+            self["#{name}_id"]               = Mongo::ObjectID.new
+            self["#{name}_size"]             = File.size(file)
+            self["#{name}_type"]             = Wand.wave(file.path)
+            self["#{name}_name"]             = Joint.file_name(file)
+            assigned_attachments[:#{name}] = file
+          end
         end
       EOC
     end
   end
 
   module InstanceMethods
-    def attachment_assignments
-      @attachment_assignments ||= {}
-    end
-
     def grid
       @grid ||= Mongo::Grid.new(database)
     end
 
     private
+      def assigned_attachments
+        @assigned_attachments ||= {}
+      end
+
+      def nil_attachments
+        @nil_attachments ||= Set.new
+      end
+
       def save_attachments
-        attachment_assignments.each do |attachment|
-          name, file   = attachment
+        assigned_attachments.each do |attachment|
+          name, file = attachment
           if file.respond_to?(:read)
             file.rewind if file.respond_to?(:rewind)
             grid.put(file.read, self["#{name}_name"], {
               :_id          => self["#{name}_id"],
-              :content_type => self["#{name}_type"], 
+              :content_type => self["#{name}_type"],
             })
           end
-        end
-
-        @attachment_assignments.clear
+        end.tap(&:clear)
       end
 
-      def destroy_attached_files
-        self.class.attachment_names.each { |name| self.send(name).delete }
+      def destroy_nil_attachments
+        nil_attachments.each { |name| grid.delete(self["#{name}_id"]) }.tap(&:clear)
+      end
+
+      def destroy_all_attachments
+        self.class.attachment_names.each { |name| grid.delete(self["#{name}_id"]) }
       end
   end
 
@@ -93,16 +105,11 @@ module Joint
       @grid_io ||= @instance.grid.get(id)
     end
 
-    def delete
-      @grid_io = nil
-      @instance.grid.delete(id)
-    end
-
     def method_missing(method, *args, &block)
       grid_io.send(method, *args, &block)
     end
   end
-  
+
   def self.file_name(file)
     file.respond_to?(:original_filename) ? file.original_filename : File.basename(file.path)
   end

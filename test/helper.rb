@@ -3,6 +3,7 @@ require 'pp'
 require 'mongo_mapper'
 require 'shoulda'
 require 'matchy'
+require 'mocha'
 
 require File.expand_path(File.dirname(__FILE__) + '/../lib/joint')
 
@@ -19,5 +20,9 @@ class Test::Unit::TestCase
       error = "#{message}.\n#{error}" if message
       assert_equal(before[i] + difference, eval(e, b), error)
     end
+  end
+
+  def assert_no_difference(expression, message = nil, &block)
+    assert_difference(expression, 0, message, &block)
   end
 end
