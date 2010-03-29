@@ -27,6 +27,10 @@ module Joint
           @#{name} ||= AttachmentProxy.new(self, :#{name})
         end
 
+        def #{name}?
+          self.send(:#{name}_id?)
+        end
+
         def #{name}=(file)
           self["#{name}_id"]               = Mongo::ObjectID.new
           self["#{name}_size"]             = File.size(file)

@@ -79,11 +79,20 @@ class JointTest < Test::Unit::TestCase
       @doc.pdf.read.should    == @pdf_contents
       @doc.image.read.should  == @image_contents
     end
+
+    should "know that attachment exists" do
+      @doc.image?.should be(true)
+      @doc.pdf?.should be(true)
+    end
   end
 
   context "Retrieving attachment that does not exist" do
     setup do
       @doc = Foo.create
+    end
+
+    should "know that the attachment is not present" do
+      @doc.image?.should be(false)
     end
 
     should "raise Mongo::GridError" do
