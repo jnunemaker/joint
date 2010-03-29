@@ -57,10 +57,12 @@ module Joint
       def save_attachments
         attachment_assignments.each do |attachment|
           name, file   = attachment
-          content_type = self["#{name}_type"]
           if file.respond_to?(:read)
             file.rewind if file.respond_to?(:rewind)
-            grid.put(file.read, self["#{name}_name"], :content_type => content_type, :_id => self["#{name}_id"])
+            grid.put(file.read, self["#{name}_name"], {
+              :_id          => self["#{name}_id"],
+              :content_type => self["#{name}_type"], 
+            })
           end
         end
 
