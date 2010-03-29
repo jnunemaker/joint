@@ -1,9 +1,10 @@
 require 'helper'
 
-class Foo
+class Asset
   include MongoMapper::Document
   plugin Joint
 
+  key :title, String
   attachment :image
   attachment :pdf
 end
@@ -24,9 +25,23 @@ class JointTest < Test::Unit::TestCase
     @image.close
   end
 
+  context "Using Joint plugin" do
+    should "add each attachment to attachment_names" do
+      Asset.attachment_names.should == [:image, :pdf]
+    end
+
+    should "add keys for each attachment" do
+      [:image, :pdf].each do |attachment|
+        [:id, :name, :type, :size].each do |key|
+          Asset.keys.include?("#{attachment}_#{key}")
+        end
+      end
+    end
+  end
+
   context "Assigning attachments to document" do
     setup do
-      @doc = Foo.create(:image => @image, :pdf => @pdf)
+      @doc = Asset.create(:image => @image, :pdf => @pdf)
       @doc.reload
     end
 
@@ -84,12 +99,32 @@ class JointTest < Test::Unit::TestCase
       @doc.image?.should be(true)
       @doc.pdf?.should be(true)
     end
+
+    should "clear assigned attachments" do
+      @doc.attachment_assignments.should == {}
+    end
+  end
+
+  context "Updating document but not attachments" do
+    setup do
+      @doc = Asset.create(:image => @image)
+      @doc.update_attributes(:title => 'Updated')
+      @doc.reload
+    end
+
+    should "not affect attachment" do
+      @doc.image.read.should == @image_contents
+    end
+
+    should "update document attributes" do
+      @doc.title.should == 'Updated'
+    end
   end
 
   context "Assigning file with where file pointer is not at beginning" do
     setup do
       @image.read
-      @doc = Foo.create(:image => @image)
+      @doc = Asset.create(:image => @image)
       @doc.reload
     end
 
@@ -100,7 +135,7 @@ class JointTest < Test::Unit::TestCase
 
   context "Retrieving attachment that does not exist" do
     setup do
-      @doc = Foo.create
+      @doc = Asset.create
     end
 
     should "know that the attachment is not present" do
@@ -114,7 +149,7 @@ class JointTest < Test::Unit::TestCase
 
   context "Destroying a document" do
     setup do
-      @doc = Foo.create(:image => @image)
+      @doc = Asset.create(:image => @image)
     end
 
     should "remove files from grid fs as well" do
@@ -126,7 +161,7 @@ class JointTest < Test::Unit::TestCase
 
   context "Assigning file name" do
     should "default to path" do
-      Foo.create(:image => @image).image.name.should == 'mr_t.jpg'
+      Asset.create(:image => @image).image.name.should == 'mr_t.jpg'
     end
 
     should "use original_filename if available" do
@@ -135,7 +170,7 @@ class JointTest < Test::Unit::TestCase
         def file.original_filename
           'testing.txt'
         end
-        doc = Foo.create(:image => file)
+        doc = Asset.create(:image => file)
         assert_equal 'testing.txt', doc.image_name
       ensure
         file.close

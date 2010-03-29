@@ -4,10 +4,6 @@ require 'wand'
 module Joint
   autoload :Version, 'joint/version'
 
-  def self.file_name(file)
-    file.respond_to?(:original_filename) ? file.original_filename : File.basename(file.path)
-  end
-
   module ClassMethods
     def attachment(name)
       self.class.class_inheritable_accessor :attachment_names unless self.class.respond_to?(:attachment_names)
@@ -22,7 +18,7 @@ module Joint
       key "#{name}_size".to_sym, Integer
       key "#{name}_type".to_sym, String
 
-      code = <<-EOC
+      class_eval <<-EOC
         def #{name}
           @#{name} ||= AttachmentProxy.new(self, :#{name})
         end
@@ -39,8 +35,6 @@ module Joint
           attachment_assignments[:#{name}] = file
         end
       EOC
-
-      class_eval(code)
     end
   end
 
@@ -107,5 +101,9 @@ module Joint
     def method_missing(method, *args, &block)
       grid_io.send(method, *args, &block)
     end
+  end
+  
+  def self.file_name(file)
+    file.respond_to?(:original_filename) ? file.original_filename : File.basename(file.path)
   end
 end
