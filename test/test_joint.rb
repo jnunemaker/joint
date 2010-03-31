@@ -128,10 +128,10 @@ class JointTest < Test::Unit::TestCase
 
   context "Updating existing attachment" do
     setup do
-      @doc = Asset.create(:image => @image)
+      @doc = Asset.create(:file => @test1)
       @doc.reload
       assert_no_grid_difference do
-        @doc.image = @image2
+        @doc.file = @test2
         @doc.save!
       end
       rewind_files
@@ -139,20 +139,20 @@ class JointTest < Test::Unit::TestCase
     subject { @doc }
 
     should "not change attachment id" do
-      subject.image_id_changed?.should be(false)
+      subject.file_id_changed?.should be(false)
     end
 
     should "update keys" do
-      subject.image_name.should == 'harmony.png'
-      subject.image_type.should == "image/png"
-      subject.image_size.should == 213517
+      subject.file_name.should == 'test2.txt'
+      subject.file_type.should == "text/plain"
+      subject.file_size.should == 5
     end
 
     should "update GridFS" do
-      grid.get(subject.image_id).filename.should     == 'harmony.png'
-      grid.get(subject.image_id).content_type.should == 'image/png'
-      grid.get(subject.image_id).file_length.should  == 213517
-      # grid.get(subject.image_id).read.should         == @image2.read
+      grid.get(subject.file_id).filename.should     == 'test2.txt'
+      grid.get(subject.file_id).content_type.should == 'text/plain'
+      grid.get(subject.file_id).file_length.should  == 5
+      grid.get(subject.file_id).read.should         == @test2.read
     end
   end
 
