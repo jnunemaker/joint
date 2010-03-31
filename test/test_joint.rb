@@ -9,28 +9,38 @@ class Asset
   attachment :file
 end
 
-class JointTest < Test::Unit::TestCase
-  def setup
-    MongoMapper.database.collections.each(&:remove)
-    dir     = File.join(File.dirname(__FILE__), 'fixtures')
-    @file   = File.open("#{dir}/unixref.pdf",  'r')
-    @image  = File.open("#{dir}/mr_t.jpg", 'r')
-    @image2 = File.open("#{dir}/harmony.png", 'r')
-    @test1  = File.open("#{dir}/test1.txt", 'r')
-    @test2  = File.open("#{dir}/test2.txt", 'r')
-    @grid   = Mongo::Grid.new(MongoMapper.database)
-  end
-
-  def teardown
-    all_files.each { |f| f.close }
-  end
-
+module JointTestHelpers
   def all_files
     [@file, @image, @image2, @test1, @test2]
   end
 
   def rewind_files
     all_files.each { |f| f.rewind }
+  end
+
+  def open_file(name)
+    File.open(File.join(File.dirname(__FILE__), 'fixtures', name), 'r')
+  end
+
+  def grid
+    @grid ||= Mongo::Grid.new(MongoMapper.database)
+  end
+end
+
+class JointTest < Test::Unit::TestCase
+  include JointTestHelpers
+
+  def setup
+    MongoMapper.database.collections.each(&:remove)
+    @file   = open_file('unixref.pdf')
+    @image  = open_file('mr_t.jpg')
+    @image2 = open_file('harmony.png')
+    @test1  = open_file('test1.txt')
+    @test2  = open_file('test2.txt')
+  end
+
+  def teardown
+    all_files.each { |f| f.close }
   end
 
   context "Using Joint plugin" do
@@ -56,8 +66,8 @@ class JointTest < Test::Unit::TestCase
     subject { @doc }
 
     should "assign GridFS content_type" do
-      @grid.get(subject.image_id).content_type.should == 'image/jpeg'
-      @grid.get(subject.file_id).content_type.should == 'application/pdf'
+      grid.get(subject.image_id).content_type.should == 'image/jpeg'
+      grid.get(subject.file_id).content_type.should == 'application/pdf'
     end
 
     should "assign joint keys" do
@@ -139,10 +149,10 @@ class JointTest < Test::Unit::TestCase
     end
 
     should "update GridFS" do
-      @grid.get(subject.image_id).filename.should     == 'harmony.png'
-      @grid.get(subject.image_id).content_type.should == 'image/png'
-      @grid.get(subject.image_id).file_length.should  == 213517
-      # @grid.get(subject.image_id).read.should         == @image2.read
+      grid.get(subject.image_id).filename.should     == 'harmony.png'
+      grid.get(subject.image_id).content_type.should == 'image/png'
+      grid.get(subject.image_id).file_length.should  == 213517
+      # grid.get(subject.image_id).read.should         == @image2.read
     end
   end
 
