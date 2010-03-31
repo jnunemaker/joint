@@ -201,6 +201,7 @@ class JointTest < Test::Unit::TestCase
     end
 
     should "clear nil attachments after save and not attempt to delete again" do
+      Mongo::Grid.any_instance.expects(:delete).once
       subject.image = nil
       subject.save
       Mongo::Grid.any_instance.expects(:delete).never
