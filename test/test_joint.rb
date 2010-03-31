@@ -60,7 +60,6 @@ class JointTest < Test::Unit::TestCase
   context "Assigning new attachments to document" do
     setup do
       @doc = Asset.create(:image => @image, :file => @file)
-      @doc.reload
       rewind_files
     end
     subject { @doc }
@@ -129,7 +128,6 @@ class JointTest < Test::Unit::TestCase
   context "Updating existing attachment" do
     setup do
       @doc = Asset.create(:file => @test1)
-      @doc.reload
       assert_no_grid_difference do
         @doc.file = @test2
         @doc.save!
