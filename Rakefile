@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'rake'
-require 'yard'
 require 'jeweler'
 require 'rake/testtask'
 
