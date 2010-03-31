@@ -15,7 +15,7 @@ module JointTestHelpers
   end
 
   def rewind_files
-    all_files.each { |f| f.rewind }
+    all_files.each { |file| file.rewind }
   end
 
   def open_file(name)
@@ -40,7 +40,7 @@ class JointTest < Test::Unit::TestCase
   end
 
   def teardown
-    all_files.each { |f| f.close }
+    all_files.each { |file| file.close }
   end
 
   context "Using Joint plugin" do
