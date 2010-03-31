@@ -10,6 +10,10 @@ require File.expand_path(File.dirname(__FILE__) + '/../lib/joint')
 MongoMapper.database = "testing"
 
 class Test::Unit::TestCase
+  def setup
+    MongoMapper.database.collections.each(&:remove)
+  end
+
   def assert_difference(expression, difference = 1, message = nil, &block)
     b      = block.send(:binding)
     exps   = Array.wrap(expression)

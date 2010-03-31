@@ -31,7 +31,7 @@ class JointTest < Test::Unit::TestCase
   include JointTestHelpers
 
   def setup
-    MongoMapper.database.collections.each(&:remove)
+    super
     @file   = open_file('unixref.pdf')
     @image  = open_file('mr_t.jpg')
     @image2 = open_file('harmony.png')
