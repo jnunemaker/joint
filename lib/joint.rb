@@ -49,10 +49,6 @@ module Joint
       @grid ||= Mongo::Grid.new(database)
     end
 
-    def attachments
-      self.class.attachment_names.map { |name| self.send(name) }
-    end
-
     private
       def assigned_attachments
         @assigned_attachments ||= {}
@@ -62,18 +58,12 @@ module Joint
         @nil_attachments ||= Set.new
       end
 
-      def attachment(name)
-        self.send(name)
-      end
-
       # IO must respond to read and rewind
       def save_attachments
         assigned_attachments.each_pair do |name, io|
           next unless io.respond_to?(:read)
-          # puts "before: #{database['fs.files'].find().to_a.inspect}"
-          grid.delete(send(name).id)
-          # puts "after: #{database['fs.files'].find().to_a.inspect}"
           io.rewind if io.respond_to?(:rewind)
+          grid.delete(send(name).id)
           grid.put(io.read, send(name).name, {
             :_id          => send(name).id,
             :content_type => send(name).type,
@@ -88,7 +78,7 @@ module Joint
       end
 
       def destroy_all_attachments
-        attachments.each { |attachment| grid.delete(attachment.id) }
+        self.class.attachment_names.map { |name| grid.delete(send(name).id) }
       end
   end
 
