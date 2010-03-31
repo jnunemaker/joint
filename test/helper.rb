@@ -25,4 +25,12 @@ class Test::Unit::TestCase
   def assert_no_difference(expression, message = nil, &block)
     assert_difference(expression, 0, message, &block)
   end
+
+  def assert_grid_difference(difference=1, &block)
+    assert_difference("MongoMapper.database['fs.files'].find().count", difference, &block)
+  end
+
+  def assert_no_grid_difference(&block)
+    assert_grid_difference(0, &block)
+  end
 end

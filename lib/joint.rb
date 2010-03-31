@@ -8,7 +8,7 @@ module Joint
   module ClassMethods
     def attachment(name)
       self.class.class_inheritable_accessor :attachment_names unless self.class.respond_to?(:attachment_names)
-      self.class.attachment_names ||= []
+      self.class.attachment_names ||= Set.new
       self.class.attachment_names << name
 
       after_save     :save_attachments
@@ -33,10 +33,10 @@ module Joint
           if file.nil?
             nil_attachments << :#{name}
           else
-            self["#{name}_id"]               = Mongo::ObjectID.new
-            self["#{name}_size"]             = File.size(file)
-            self["#{name}_type"]             = Wand.wave(file.path)
-            self["#{name}_name"]             = Joint.file_name(file)
+            self["#{name}_id"]             = Mongo::ObjectID.new if self["#{name}_id"].nil?
+            self["#{name}_size"]           = File.size(file)
+            self["#{name}_type"]           = Wand.wave(file.path)
+            self["#{name}_name"]           = Joint.file_name(file)
             assigned_attachments[:#{name}] = file
           end
         end
@@ -49,6 +49,10 @@ module Joint
       @grid ||= Mongo::Grid.new(database)
     end
 
+    def attachments
+      self.class.attachment_names.map { |name| self.send(name) }
+    end
+
     private
       def assigned_attachments
         @assigned_attachments ||= {}
@@ -58,25 +62,33 @@ module Joint
         @nil_attachments ||= Set.new
       end
 
+      def attachment(name)
+        self.send(name)
+      end
+
+      # IO must respond to read and rewind
       def save_attachments
-        assigned_attachments.each do |attachment|
-          name, file = attachment
-          if file.respond_to?(:read)
-            file.rewind if file.respond_to?(:rewind)
-            grid.put(file.read, self["#{name}_name"], {
-              :_id          => self["#{name}_id"],
-              :content_type => self["#{name}_type"],
-            })
-          end
-        end.tap(&:clear)
+        assigned_attachments.each_pair do |name, io|
+          next unless io.respond_to?(:read)
+          # puts "before: #{database['fs.files'].find().to_a.inspect}"
+          grid.delete(send(name).id)
+          # puts "after: #{database['fs.files'].find().to_a.inspect}"
+          io.rewind if io.respond_to?(:rewind)
+          grid.put(io.read, send(name).name, {
+            :_id          => send(name).id,
+            :content_type => send(name).type,
+          })
+        end
+        assigned_attachments.clear
       end
 
       def destroy_nil_attachments
-        nil_attachments.each { |name| grid.delete(self["#{name}_id"]) }.tap(&:clear)
+        nil_attachments.each { |name| grid.delete(send(name).id) }
+        nil_attachments.clear
       end
 
       def destroy_all_attachments
-        self.class.attachment_names.each { |name| grid.delete(self["#{name}_id"]) }
+        attachments.each { |attachment| grid.delete(attachment.id) }
       end
   end
 
