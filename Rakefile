@@ -21,7 +21,10 @@ Jeweler::Tasks.new do |gem|
   gem.add_dependency 'mime-types'
 
   gem.add_development_dependency 'jeweler'
-  gem.add_development_dependency 'mongo_mapper'
+  gem.add_development_dependency 'shoulda'
+  gem.add_development_dependency 'mocha'
+  gem.add_development_dependency 'jnunemaker-matchy'
+  gem.add_development_dependency 'mongo_mapper', '>= 0.7.2'
 end
 Jeweler::GemcutterTasks.new
 

@@ -1,9 +1,9 @@
 require 'tempfile'
 require 'pp'
-require 'mongo_mapper'
 require 'shoulda'
 require 'matchy'
 require 'mocha'
+require 'mongo_mapper'
 
 require File.expand_path(File.dirname(__FILE__) + '/../lib/joint')
 
