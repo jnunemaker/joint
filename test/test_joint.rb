@@ -241,16 +241,11 @@ class JointTest < Test::Unit::TestCase
     end
 
     should "use original_filename if available" do
-      begin
-        file = Tempfile.new('testing.txt')
-        def file.original_filename
-          'testing.txt'
-        end
-        doc = Asset.create(:image => file)
-        assert_equal 'testing.txt', doc.image_name
-      ensure
-        file.close
+      def @image.original_filename
+        'testing.txt'
       end
+      doc = Asset.create(:image => @image)
+      assert_equal 'testing.txt', doc.image_name
     end
   end
 end
