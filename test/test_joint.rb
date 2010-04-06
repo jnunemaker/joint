@@ -9,6 +9,14 @@ class Asset
   attachment :file
 end
 
+class BaseModel
+  include MongoMapper::Document
+  plugin Joint
+end
+
+class Image < BaseModel; attachment :image end
+class Video < BaseModel; attachment :video end
+
 module JointTestHelpers
   def all_files
     [@file, @image, @image2, @test1, @test2]
@@ -46,13 +54,19 @@ class JointTest < Test::Unit::TestCase
   context "Using Joint plugin" do
     should "add each attachment to attachment_names" do
       Asset.attachment_names.should == Set.new([:image, :file])
+
+      BaseModel.attachment_names.should be_empty
+      Image.attachment_names.should == Set.new([:image])
+      Video.attachment_names.should == Set.new([:video])
     end
 
     should "add keys for each attachment" do
-      [:image, :file].each do |attachment|
-        [:id, :name, :type, :size].each do |key|
-          Asset.keys.should include("#{attachment}_#{key}")
-        end
+      [:id, :name, :type, :size].each do |key|
+        Asset.keys.should include("image_#{key}")
+        Asset.keys.should include("file_#{key}")
+
+        Image.keys.should include("image_#{key}")
+        Video.keys.should include("video_#{key}")
       end
     end
   end

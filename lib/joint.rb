@@ -5,11 +5,14 @@ require 'wand'
 module Joint
   autoload :Version, 'joint/version'
 
+  def self.configure(model)
+    model.class_inheritable_accessor :attachment_names
+    model.attachment_names = Set.new
+  end
+
   module ClassMethods
     def attachment(name)
-      self.class.class_inheritable_accessor :attachment_names unless self.class.respond_to?(:attachment_names)
-      self.class.attachment_names ||= Set.new
-      self.class.attachment_names << name
+      self.attachment_names << name
 
       after_save     :save_attachments
       after_save     :destroy_nil_attachments
