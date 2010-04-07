@@ -12,6 +12,7 @@ end
 class BaseModel
   include MongoMapper::Document
   plugin Joint
+  attachment :file
 end
 
 class Image < BaseModel; attachment :image end
@@ -32,6 +33,10 @@ module JointTestHelpers
 
   def grid
     @grid ||= Mongo::Grid.new(MongoMapper.database)
+  end
+  
+  def key_names
+    [:id, :name, :type, :size]
   end
 end
 
@@ -54,19 +59,33 @@ class JointTest < Test::Unit::TestCase
   context "Using Joint plugin" do
     should "add each attachment to attachment_names" do
       Asset.attachment_names.should == Set.new([:image, :file])
-
-      BaseModel.attachment_names.should be_empty
-      Image.attachment_names.should == Set.new([:image])
-      Video.attachment_names.should == Set.new([:video])
     end
 
     should "add keys for each attachment" do
-      [:id, :name, :type, :size].each do |key|
+      key_names.each do |key|
         Asset.keys.should include("image_#{key}")
         Asset.keys.should include("file_#{key}")
+      end
+    end
 
-        Image.keys.should include("image_#{key}")
-        Video.keys.should include("video_#{key}")
+    context "with inheritance" do
+      should "add attachment to attachment_names" do
+        BaseModel.attachment_names.should == Set.new([:file])
+      end
+
+      should "inherit attachments from superclass, but not share other inherited class attachments" do
+        Image.attachment_names.should == Set.new([:file, :image])
+        Video.attachment_names.should == Set.new([:file, :video])
+      end
+
+      should "add inherit keys from superclass" do
+        key_names.each do |key|
+          BaseModel.keys.should include("file_#{key}")
+          Image.keys.should     include("file_#{key}")
+          Image.keys.should     include("image_#{key}")
+          Video.keys.should     include("file_#{key}")
+          Video.keys.should     include("video_#{key}")
+        end
       end
     end
   end
