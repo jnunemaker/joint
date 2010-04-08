@@ -11,7 +11,10 @@ module Joint
   end
 
   module ClassMethods
-    def attachment(name)
+    def attachment(name, options = {})
+      options.symbolize_keys!
+      name = name.to_sym
+
       self.attachment_names << name
 
       after_save     :save_attachments
@@ -22,6 +25,8 @@ module Joint
       key "#{name}_name".to_sym, String
       key "#{name}_size".to_sym, Integer
       key "#{name}_type".to_sym, String
+
+      validates_presence_of(name) if options[:required]
 
       class_eval <<-EOC
         def #{name}

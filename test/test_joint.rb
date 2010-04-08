@@ -306,8 +306,7 @@ class JointTest < Test::Unit::TestCase
       @model_class = Class.new do
         include MongoMapper::Document
         plugin Joint
-        attachment :file
-        validates_presence_of :file
+        attachment :file, :required => true
       end
     end
 
