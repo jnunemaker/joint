@@ -29,7 +29,7 @@ module Joint
         end
 
         def #{name}?
-          self.send(:#{name}_id?)
+          !nil_attachments.include?(:#{name}) && self.send(:#{name}_id?)
         end
 
         def #{name}=(file)

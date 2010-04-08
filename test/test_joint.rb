@@ -231,6 +231,11 @@ class JointTest < Test::Unit::TestCase
       assert_grid_difference(-1)  { subject.save }
     end
 
+    should "know that the attachment has been nullified" do
+      subject.image = nil
+      subject.image?.should be(false)
+    end
+
     should "clear nil attachments after save and not attempt to delete again" do
       Mongo::Grid.any_instance.expects(:delete).once
       subject.image = nil
