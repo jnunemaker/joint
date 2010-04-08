@@ -106,6 +106,10 @@ module Joint
       @instance.send("#{@name}_type")
     end
 
+    def nil?
+      !@instance.send("#{@name}?")
+    end
+
     def grid_io
       @grid_io ||= @instance.grid.get(id)
     end
