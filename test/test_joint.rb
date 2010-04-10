@@ -319,6 +319,9 @@ class JointTest < Test::Unit::TestCase
 
       model.file = nil
       model.should_not be_valid
+
+      model.file = @image
+      model.should be_valid
     end
   end
 end

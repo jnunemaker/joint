@@ -40,12 +40,14 @@ module Joint
         def #{name}=(file)
           if file.nil?
             nil_attachments << :#{name}
+            assigned_attachments.delete(:#{name})
           else
             self["#{name}_id"]             = Mongo::ObjectID.new if self["#{name}_id"].nil?
             self["#{name}_size"]           = File.size(file)
             self["#{name}_type"]           = Wand.wave(file.path)
             self["#{name}_name"]           = Joint.file_name(file)
             assigned_attachments[:#{name}] = file
+            nil_attachments.delete(:#{name})
           end
         end
       EOC
