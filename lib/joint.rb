@@ -42,7 +42,7 @@ module Joint
             nil_attachments << :#{name}
             assigned_attachments.delete(:#{name})
           else
-            self["#{name}_id"]             = Mongo::ObjectID.new if self["#{name}_id"].nil?
+            self["#{name}_id"]             = BSON::ObjectID.new if self["#{name}_id"].nil?
             self["#{name}_size"]           = File.size(file)
             self["#{name}_type"]           = Wand.wave(file.path)
             self["#{name}_name"]           = Joint.file_name(file)
@@ -74,8 +74,9 @@ module Joint
           next unless io.respond_to?(:read)
           io.rewind if io.respond_to?(:rewind)
           grid.delete(send(name).id)
-          grid.put(io.read, send(name).name, {
+          grid.put(io.read, {
             :_id          => send(name).id,
+            :filename     => send(name).name,
             :content_type => send(name).type,
           })
         end
