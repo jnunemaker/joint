@@ -238,6 +238,16 @@ class JointTest < Test::Unit::TestCase
       Mongo::Grid.any_instance.expects(:delete).never
       subject.save
     end
+
+    should "clear id, name, type, size" do
+      subject.image = nil
+      subject.save
+      assert_nil subject.image_id
+      assert_nil subject.image_name
+      assert_nil subject.image_type
+      assert_nil subject.image_size
+    end
+
   end
 
   context "Retrieving attachment that does not exist" do
