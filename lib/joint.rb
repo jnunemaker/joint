@@ -11,7 +11,10 @@ module Joint
   end
 
   module ClassMethods
-    def attachment(name)
+    def attachment(name, options = {})
+      options.symbolize_keys!
+      name = name.to_sym
+
       self.attachment_names << name
 
       after_save     :save_attachments
@@ -22,6 +25,8 @@ module Joint
       key "#{name}_name".to_sym, String
       key "#{name}_size".to_sym, Integer
       key "#{name}_type".to_sym, String
+
+      validates_presence_of(name) if options[:required]
 
       class_eval <<-EOC
         def #{name}
@@ -35,12 +40,14 @@ module Joint
         def #{name}=(file)
           if file.nil?
             nil_attachments << :#{name}
+            assigned_attachments.delete(:#{name})
           else
             self["#{name}_id"]             = BSON::ObjectID.new if self["#{name}_id"].nil?
             self["#{name}_size"]           = File.size(file)
             self["#{name}_type"]           = Wand.wave(file.path)
             self["#{name}_name"]           = Joint.file_name(file)
             assigned_attachments[:#{name}] = file
+            nil_attachments.delete(:#{name})
           end
         end
       EOC
@@ -119,6 +126,10 @@ module Joint
 
     def type
       @instance.send("#{@name}_type")
+    end
+
+    def nil?
+      !@instance.send("#{@name}?")
     end
 
     def grid_io

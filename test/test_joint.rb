@@ -152,6 +152,11 @@ class JointTest < Test::Unit::TestCase
       subject.file?.should be(true)
     end
 
+    should "respond with false when asked if the attachment is nil?" do
+      subject.image.nil?.should be(false)
+      subject.file.nil?.should be(false)
+    end
+
     should "clear assigned attachments so they don't get uploaded twice" do
       Mongo::Grid.any_instance.expects(:put).never
       subject.save
@@ -236,6 +241,11 @@ class JointTest < Test::Unit::TestCase
       subject.image?.should be(false)
     end
 
+    should "respond with true when asked if the attachment is nil?" do
+      subject.image = nil
+      subject.image.nil?.should be(true)
+    end
+
     should "clear nil attachments after save and not attempt to delete again" do
       Mongo::Grid.any_instance.expects(:delete).once
       subject.image = nil
@@ -271,6 +281,10 @@ class JointTest < Test::Unit::TestCase
       subject.image?.should be(false)
     end
 
+    should "respond with true when asked if the attachment is nil?" do
+      subject.image.nil?.should be(true)
+    end
+
     should "raise Mongo::GridFileNotFound" do
       assert_raises(Mongo::GridFileNotFound) { subject.image.read }
     end
@@ -299,6 +313,30 @@ class JointTest < Test::Unit::TestCase
       end
       doc = Asset.create(:image => @image)
       assert_equal 'testing.txt', doc.image_name
+    end
+  end
+
+  context "Validating attachment presence" do
+    setup do
+      @model_class = Class.new do
+        include MongoMapper::Document
+        plugin Joint
+        attachment :file, :required => true
+      end
+    end
+
+    should "work" do
+      model = @model_class.new
+      model.should_not be_valid
+
+      model.file = @file
+      model.should be_valid
+
+      model.file = nil
+      model.should_not be_valid
+
+      model.file = @image
+      model.should be_valid
     end
   end
 end
