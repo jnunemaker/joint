@@ -246,6 +246,11 @@ class JointTest < Test::Unit::TestCase
       assert_nil subject.image_name
       assert_nil subject.image_type
       assert_nil subject.image_size
+      subject.reload
+      assert_nil subject.image_id
+      assert_nil subject.image_name
+      assert_nil subject.image_type
+      assert_nil subject.image_size
     end
 
   end

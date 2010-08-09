@@ -77,12 +77,19 @@ module Joint
       end
 
       def destroy_nil_attachments
+        # currently MM does not send sets to instance as well
         nil_attachments.each do |name|
           grid.delete(send(name).id)
-          send("#{name}_id=", nil)
-          send("#{name}_size=", nil)
-          send("#{name}_type=", nil)
-          send("#{name}_name=", nil)
+          send(:"#{name}_id=", nil)
+          send(:"#{name}_size=", nil)
+          send(:"#{name}_type=", nil)
+          send(:"#{name}_name=", nil)
+          set({
+            :"#{name}_id"   => nil,
+            :"#{name}_size" => nil,
+            :"#{name}_type" => nil,
+            :"#{name}_name" => nil,
+          })
         end
 
         nil_attachments.clear
