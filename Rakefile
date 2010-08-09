@@ -1,38 +1,31 @@
 require 'rubygems'
 require 'rake'
-require 'jeweler'
 require 'rake/testtask'
+require File.expand_path('../lib/joint/version', __FILE__)
 
-require File.join(File.dirname(__FILE__), 'lib', 'joint', 'version')
-
-Jeweler::Tasks.new do |gem|
-  gem.name        = "joint"
-  gem.summary     = %Q{MongoMapper and GridFS joined in file upload love.}
-  gem.description = %Q{MongoMapper and GridFS joined in file upload love.}
-  gem.email       = "nunemaker@gmail.com"
-  gem.homepage    = "http://github.com/jnunemaker/joint"
-  gem.authors     = ["John Nunemaker"]
-  gem.version     = Joint::Version
-  gem.files       = FileList['lib/**/*.rb', 'bin/*', '[A-Z]*', 'test/**/*'].to_a
-  gem.test_files  = FileList['test/**/*'].to_a
-  
-  gem.add_dependency 'wand', '>= 0.2.1'
-  gem.add_dependency 'mime-types'
-  gem.add_dependency 'mongo_mapper', '>= 0.7.4'
-
-  gem.add_development_dependency 'jeweler'
-  gem.add_development_dependency 'shoulda'
-  gem.add_development_dependency 'mocha'
-  gem.add_development_dependency 'jnunemaker-matchy'
-end
-Jeweler::GemcutterTasks.new
-
-Rake::TestTask.new(:test) do |test|
+Rake::TestTask.new do |test|
   test.libs      << 'lib' << 'test'
-  test.ruby_opts << '-rubygems'
   test.pattern   = 'test/**/test_*.rb'
+  test.ruby_opts = ['-rubygems']
   test.verbose   = true
 end
 
-task :test    => :check_dependencies
 task :default => :test
+
+desc 'Builds the gem'
+task :build do
+  sh "gem build joint.gemspec"
+end
+
+desc 'Builds and installs the gem'
+task :install => :build do
+  sh "gem install joint-#{Joint::Version}"
+end
+
+desc 'Tags version, pushes to remote, and pushes gem'
+task :release => :build do
+  sh "git tag v#{Joint::Version}"
+  sh "git push origin master"
+  sh "git push origin v#{Joint::Version}"
+  sh "gem push joint-#{Joint::Version}.gem"
+end
