@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.authors     = ["John Nunemaker"]
   s.version     = Joint::Version
   s.files       = Dir.glob("{lib,test}/**/*") + %w[LICENSE README.rdoc]
-  s.test_files  = FileList['test/**/*'].to_a
+  s.test_files  = Dir.glob("test/**/*")
 
   s.add_dependency 'wand', '>= 0.2.1'
   s.add_dependency 'mime-types'
