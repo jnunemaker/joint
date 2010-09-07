@@ -112,8 +112,8 @@ class JointTest < Test::Unit::TestCase
       subject.image_id.should_not be_nil
       subject.file_id.should_not be_nil
 
-      subject.image_id.should be_instance_of(BSON::ObjectID)
-      subject.file_id.should be_instance_of(BSON::ObjectID)
+      subject.image_id.should be_instance_of(BSON::ObjectId)
+      subject.file_id.should be_instance_of(BSON::ObjectId)
     end
 
     should "allow accessing keys through attachment proxy" do
@@ -126,8 +126,8 @@ class JointTest < Test::Unit::TestCase
       subject.image.id.should_not be_nil
       subject.file.id.should_not be_nil
 
-      subject.image.id.should be_instance_of(BSON::ObjectID)
-      subject.file.id.should be_instance_of(BSON::ObjectID)
+      subject.image.id.should be_instance_of(BSON::ObjectId)
+      subject.file.id.should be_instance_of(BSON::ObjectId)
     end
 
     should "proxy unknown methods to GridIO object" do
