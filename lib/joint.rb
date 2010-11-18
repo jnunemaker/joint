@@ -34,7 +34,7 @@ module Joint
         end
 
         def #{name}?
-          !nil_attachments.include?(:#{name}) && self.send(:#{name}_id?)
+          !nil_attachments.include?(:#{name}) && send(:#{name}_id?)
         end
 
         def #{name}=(file)
@@ -42,10 +42,10 @@ module Joint
             nil_attachments << :#{name}
             assigned_attachments.delete(:#{name})
           else
-            self["#{name}_id"]             = BSON::ObjectId.new if self["#{name}_id"].nil?
-            self["#{name}_size"]           = File.size(file)
-            self["#{name}_type"]           = Wand.wave(file.path)
-            self["#{name}_name"]           = Joint.file_name(file)
+            send("#{name}_id=", BSON::ObjectId.new) if send("#{name}_id").nil?
+            send("#{name}_size=", File.size(file))
+            send("#{name}_type=", Wand.wave(file.path))
+            send("#{name}_name=", Joint.file_name(file))
             assigned_attachments[:#{name}] = file
             nil_attachments.delete(:#{name})
           end
