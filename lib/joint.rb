@@ -8,9 +8,14 @@ module Joint
   def self.configure(model)
     model.class_inheritable_accessor :attachment_names
     model.attachment_names = Set.new
+    model.send(:include, model.attachment_accessor_module)
   end
 
   module ClassMethods
+    def attachment_accessor_module
+      @attachment_accessor_module ||= Module.new
+    end
+
     def attachment(name, options = {})
       options.symbolize_keys!
       name = name.to_sym
@@ -28,7 +33,7 @@ module Joint
 
       validates_presence_of(name) if options[:required]
 
-      class_eval <<-EOC
+      attachment_accessor_module.module_eval <<-EOC
         def #{name}
           @#{name} ||= AttachmentProxy.new(self, :#{name})
         end

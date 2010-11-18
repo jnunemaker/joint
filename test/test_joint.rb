@@ -34,7 +34,7 @@ module JointTestHelpers
   def grid
     @grid ||= Mongo::Grid.new(MongoMapper.database)
   end
-  
+
   def key_names
     [:id, :name, :type, :size]
   end
@@ -66,6 +66,10 @@ class JointTest < Test::Unit::TestCase
         Asset.keys.should include("image_#{key}")
         Asset.keys.should include("file_#{key}")
       end
+    end
+
+    should "add memoized accessors module" do
+      Asset.attachment_accessor_module.should be_instance_of(Module)
     end
 
     context "with inheritance" do
