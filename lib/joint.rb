@@ -21,10 +21,10 @@ module Joint
       after_save     :destroy_nil_attachments
       before_destroy :destroy_all_attachments
 
-      key "#{name}_id".to_sym,   ObjectId
-      key "#{name}_name".to_sym, String
-      key "#{name}_size".to_sym, Integer
-      key "#{name}_type".to_sym, String
+      key :"#{name}_id",   ObjectId
+      key :"#{name}_name", String
+      key :"#{name}_size", Integer
+      key :"#{name}_type", String
 
       validates_presence_of(name) if options[:required]
 
