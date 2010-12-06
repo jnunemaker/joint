@@ -13,9 +13,9 @@ Gem::Specification.new do |s|
   s.files       = Dir.glob("{lib,test}/**/*") + %w[LICENSE README.rdoc]
   s.test_files  = Dir.glob("test/**/*")
 
-  s.add_dependency 'wand', '>= 0.2.1'
+  s.add_dependency 'wand', '~> 0.2.1'
   s.add_dependency 'mime-types'
-  s.add_dependency 'mongo_mapper', '>= 0.7.4'
+  s.add_dependency 'mongo_mapper', '~> 0.8.6'
 
   s.add_development_dependency 'shoulda'
   s.add_development_dependency 'mocha'
