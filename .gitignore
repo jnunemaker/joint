@@ -4,3 +4,4 @@ tmp/*
 doc/*
 pkg/*
 .bundle
+*.swp

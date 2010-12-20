@@ -4,7 +4,7 @@ PATH
     joint (0.5)
       mime-types
       mongo_mapper (~> 0.8.6)
-      wand (~> 0.2.1)
+      wand (~> 0.3)
 
 GEM
   remote: http://rubygems.org/
@@ -29,7 +29,7 @@ GEM
       mongo (~> 1.1)
     rake (0.8.7)
     shoulda (2.11.3)
-    wand (0.2.1)
+    wand (0.3)
       mime-types
 
 PLATFORMS
@@ -44,4 +44,4 @@ DEPENDENCIES
   mocha
   mongo_mapper (~> 0.8.6)
   shoulda
-  wand (~> 0.2.1)
+  wand (~> 0.3)

@@ -49,7 +49,7 @@ module Joint
           else
             send("#{name}_id=", BSON::ObjectId.new) if send("#{name}_id").nil?
             send("#{name}_size=", File.size(file))
-            send("#{name}_type=", Wand.wave(file.path))
+            send("#{name}_type=", Wand.wave(file.path, :original_filename => Joint.file_name(file)))
             send("#{name}_name=", Joint.file_name(file))
             assigned_attachments[:#{name}] = file
             nil_attachments.delete(:#{name})
