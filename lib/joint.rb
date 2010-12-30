@@ -10,15 +10,27 @@ module Joint
   end
 
   def self.name(file)
-    file.respond_to?(:original_filename) ? file.original_filename : File.basename(file.path)
-  end
-
-  def self.type(file)
-    Wand.wave(file.path, :original_filename => Joint.name(file))
+    if file.respond_to?(:original_filename)
+      file.original_filename
+    else
+      File.basename(file.path)
+    end
   end
 
   def self.size(file)
-    File.size(file)
+    if file.respond_to?(:size)
+      file.size
+    else
+      File.size(file)
+    end
+  end
+
+  def self.type(file)
+    if file.respond_to?(:content_type)
+      file.content_type
+    else
+      Wand.wave(file.path, :original_filename => Joint.name(file))
+    end
   end
 end
 

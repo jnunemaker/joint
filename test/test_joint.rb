@@ -56,6 +56,45 @@ class JointTest < Test::Unit::TestCase
     all_files.each { |file| file.close }
   end
 
+  context ".name" do
+    should "return original_filename" do
+      def @image.original_filename
+        'frank.jpg'
+      end
+      Joint.name(@image).should == 'frank.jpg'
+    end
+
+    should "fall back to File.basename" do
+      Joint.name(@image).should == 'mr_t.jpg'
+    end
+  end
+
+  context ".size" do
+    should "return size" do
+      def @image.size
+        25
+      end
+      Joint.size(@image).should == 25
+    end
+
+    should "fall back to File.size" do
+      Joint.size(@image).should == 13661
+    end
+  end
+
+  context ".type" do
+    should "return type" do
+      def @image.content_type
+        'plain/text'
+      end
+      Joint.type(@image).should == 'plain/text'
+    end
+
+    should "fall back to Wand" do
+      Joint.type(@image).should == 'image/jpeg'
+    end
+  end
+
   context "Using Joint plugin" do
     should "add each attachment to attachment_names" do
       Asset.attachment_names.should == Set.new([:image, :file])
