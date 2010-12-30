@@ -9,8 +9,16 @@ module Joint
     model.send(:include, model.attachment_accessor_module)
   end
 
-  def self.file_name(file)
+  def self.name(file)
     file.respond_to?(:original_filename) ? file.original_filename : File.basename(file.path)
+  end
+
+  def self.type(file)
+    Wand.wave(file.path, :original_filename => Joint.name(file))
+  end
+
+  def self.size(file)
+    File.size(file)
   end
 end
 
