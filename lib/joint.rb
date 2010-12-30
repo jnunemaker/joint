@@ -3,8 +3,6 @@ require 'mime/types'
 require 'wand'
 
 module Joint
-  autoload :Version, 'joint/version'
-
   def self.configure(model)
     model.class_inheritable_accessor :attachment_names
     model.attachment_names = Set.new
