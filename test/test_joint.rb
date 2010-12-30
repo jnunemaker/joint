@@ -1,45 +1,5 @@
 require 'helper'
 
-class Asset
-  include MongoMapper::Document
-  plugin Joint
-
-  key :title, String
-  attachment :image
-  attachment :file
-end
-
-class BaseModel
-  include MongoMapper::Document
-  plugin Joint
-  attachment :file
-end
-
-class Image < BaseModel; attachment :image end
-class Video < BaseModel; attachment :video end
-
-module JointTestHelpers
-  def all_files
-    [@file, @image, @image2, @test1, @test2]
-  end
-
-  def rewind_files
-    all_files.each { |file| file.rewind }
-  end
-
-  def open_file(name)
-    File.open(File.join(File.dirname(__FILE__), 'fixtures', name), 'r')
-  end
-
-  def grid
-    @grid ||= Mongo::Grid.new(MongoMapper.database)
-  end
-
-  def key_names
-    [:id, :name, :type, :size]
-  end
-end
-
 class JointTest < Test::Unit::TestCase
   include JointTestHelpers
 
