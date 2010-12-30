@@ -37,3 +37,4 @@ end
 require 'joint/class_methods'
 require 'joint/instance_methods'
 require 'joint/attachment_proxy'
+require 'joint/io'

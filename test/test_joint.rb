@@ -342,4 +342,23 @@ class JointTest < Test::Unit::TestCase
       model.should be_valid
     end
   end
+
+  context "Assigning joint io instance" do
+    setup do
+      io = Joint::IO.new({
+        :name         => 'foo.txt',
+        :content_type => 'plain/text',
+        :content      => 'This is my stuff',
+        :size         => 19,
+      })
+      @asset = Asset.create(:file => io)
+    end
+
+    should "work" do
+      @asset.file_name.should == 'foo.txt'
+      @asset.file_size.should == 19
+      @asset.file_type.should == 'plain/text'
+      @asset.file.read.should == 'This is my stuff'
+    end
+  end
 end
