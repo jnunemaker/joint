@@ -11,6 +11,10 @@ module Joint
     model.send(:include, model.attachment_accessor_module)
   end
 
+  def self.file_name(file)
+    file.respond_to?(:original_filename) ? file.original_filename : File.basename(file.path)
+  end
+
   module ClassMethods
     def attachment_accessor_module
       @attachment_accessor_module ||= Module.new
@@ -111,42 +115,6 @@ module Joint
         self.class.attachment_names.map { |name| grid.delete(send(name).id) }
       end
   end
-
-  class AttachmentProxy
-    def initialize(instance, name)
-      @instance, @name = instance, name
-    end
-
-    def id
-      @instance.send("#{@name}_id")
-    end
-
-    def name
-      @instance.send("#{@name}_name")
-    end
-
-    def size
-      @instance.send("#{@name}_size")
-    end
-
-    def type
-      @instance.send("#{@name}_type")
-    end
-
-    def nil?
-      !@instance.send("#{@name}?")
-    end
-
-    def grid_io
-      @grid_io ||= @instance.grid.get(id)
-    end
-
-    def method_missing(method, *args, &block)
-      grid_io.send(method, *args, &block)
-    end
-  end
-
-  def self.file_name(file)
-    file.respond_to?(:original_filename) ? file.original_filename : File.basename(file.path)
-  end
 end
+
+require 'joint/attachment_proxy'
