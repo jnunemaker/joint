@@ -361,4 +361,34 @@ class JointTest < Test::Unit::TestCase
       @asset.file.read.should == 'This is my stuff'
     end
   end
+
+  context "A font file" do
+    setup do
+      @file = open_file('font.eot')
+      @doc = Asset.create(:file => @file)
+    end
+    subject { @doc }
+
+    should "assign joint keys" do
+      subject.file_size.should   == 17610
+      subject.file_type.should   == "application/octet-stream"
+      subject.file_id.should_not be_nil
+      subject.file_id.should be_instance_of(BSON::ObjectId)
+    end
+  end
+
+  context "A music file" do
+    setup do
+      @file = open_file('example.m4r')
+      @doc = Asset.create(:file => @file)
+    end
+    subject { @doc }
+
+    should "assign joint keys" do
+      subject.file_size.should   == 50790
+      subject.file_type.should   == "audio/mp4"
+      subject.file_id.should_not be_nil
+      subject.file_id.should be_instance_of(BSON::ObjectId)
+    end
+  end
 end
