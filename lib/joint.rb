@@ -26,11 +26,18 @@ module Joint
   end
 
   def self.type(file)
-    if file.respond_to?(:content_type)
-      file.content_type
-    else
-      Wand.wave(file.path, :original_filename => Joint.name(file))
+    type = file.content_type if file.respond_to?(:content_type)
+
+    if blank?(type)
+      type = Wand.wave(file.path, :original_filename => Joint.name(file))
     end
+
+    type
+  end
+
+private
+  def self.blank?(str)
+    str.nil? || str !~ /\S/
   end
 end
 

@@ -43,11 +43,19 @@ class JointTest < Test::Unit::TestCase
   end
 
   context ".type" do
-    should "return type" do
+    should "return content_type if responds to it" do
       def @image.content_type
         'plain/text'
       end
       Joint.type(@image).should == 'plain/text'
+    end
+
+    should "fall back to Wand if content_type is blank" do
+      def @image.content_type; '' end
+      Joint.type(@image).should == 'image/jpeg'
+
+      def @image.content_type; '   ' end
+      Joint.type(@image).should == 'image/jpeg'
     end
 
     should "fall back to Wand" do
