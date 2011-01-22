@@ -43,18 +43,8 @@ class JointTest < Test::Unit::TestCase
   end
 
   context ".type" do
-    should "return content_type if responds to it" do
-      def @image.content_type
-        'plain/text'
-      end
-      Joint.type(@image).should == 'plain/text'
-    end
-
-    should "fall back to Wand if content_type is blank" do
-      def @image.content_type; '' end
-      Joint.type(@image).should == 'image/jpeg'
-
-      def @image.content_type; '   ' end
+    should "return type if Joint::Io instance" do
+      file = Joint::IO.new(:type => 'image/jpeg')
       Joint.type(@image).should == 'image/jpeg'
     end
 
@@ -354,10 +344,10 @@ class JointTest < Test::Unit::TestCase
   context "Assigning joint io instance" do
     setup do
       io = Joint::IO.new({
-        :name         => 'foo.txt',
-        :content_type => 'plain/text',
-        :content      => 'This is my stuff',
-        :size         => 19,
+        :name    => 'foo.txt',
+        :type    => 'plain/text',
+        :content => 'This is my stuff',
+        :size    => 19,
       })
       @asset = Asset.create(:file => io)
     end

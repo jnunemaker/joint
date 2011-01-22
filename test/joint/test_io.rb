@@ -7,8 +7,8 @@ class IOTest < Test::Unit::TestCase
     end
   end
 
-  should "default content_type to plain text" do
-    Joint::IO.new.content_type.should == 'plain/text'
+  should "default type to plain text" do
+    Joint::IO.new.type.should == 'plain/text'
   end
 
   should "default size to content size" do
