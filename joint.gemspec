@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.authors     = ["John Nunemaker"]
   s.version     = Joint::Version
 
-  s.add_dependency 'wand', '~> 0.3'
+  s.add_dependency 'wand', '~> 0.4'
   s.add_dependency 'mime-types'
   s.add_dependency 'mongo_mapper', '~> 0.8.6'
 

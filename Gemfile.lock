@@ -1,10 +1,10 @@
 PATH
   remote: .
   specs:
-    joint (0.5.1)
+    joint (0.5.2)
       mime-types
       mongo_mapper (~> 0.8.6)
-      wand (~> 0.3)
+      wand (~> 0.4)
 
 GEM
   remote: http://rubygems.org/
@@ -28,9 +28,11 @@ GEM
     plucky (0.3.6)
       mongo (~> 1.1)
     rake (0.8.7)
+    safe_shell (1.0.0)
     shoulda (2.11.3)
-    wand (0.3)
+    wand (0.4)
       mime-types
+      safe_shell (~> 1.0.0)
 
 PLATFORMS
   ruby
@@ -44,4 +46,4 @@ DEPENDENCIES
   mocha
   mongo_mapper (~> 0.8.6)
   shoulda
-  wand (~> 0.3)
+  wand (~> 0.4)
