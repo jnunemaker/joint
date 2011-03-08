@@ -158,6 +158,11 @@ class JointTest < Test::Unit::TestCase
       subject.file.nil?.should be(false)
     end
 
+    should "respond with false when asked if the attachment is blank?" do
+      subject.image.blank?.should be(false)
+      subject.file.blank?.should be(false)
+    end
+
     should "clear assigned attachments so they don't get uploaded twice" do
       Mongo::Grid.any_instance.expects(:put).never
       subject.save
@@ -247,6 +252,11 @@ class JointTest < Test::Unit::TestCase
       subject.image.nil?.should be(true)
     end
 
+    should "respond with true when asked if the attachment is blank?" do
+      subject.image = nil
+      subject.image.blank?.should be(true)
+    end
+
     should "clear nil attachments after save and not attempt to delete again" do
       Mongo::Grid.any_instance.expects(:delete).once
       subject.image = nil
@@ -323,6 +333,8 @@ class JointTest < Test::Unit::TestCase
         include MongoMapper::Document
         plugin Joint
         attachment :file, :required => true
+
+        def self.name; "Foo"; end
       end
     end
 

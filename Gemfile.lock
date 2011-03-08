@@ -1,31 +1,39 @@
+GIT
+  remote: git://github.com/jnunemaker/mongomapper.git
+  revision: ae943070db905856f1844dd19b292c1a0eb2f580
+  specs:
+    mongo_mapper (0.9.0)
+      activemodel (~> 3.0.0)
+      activesupport (~> 3.0.0)
+      plucky (~> 0.3.6)
+
 PATH
   remote: .
   specs:
-    joint (0.5.2)
+    joint (0.6.0)
       mime-types
-      mongo_mapper (~> 0.8.6)
+      mongo_mapper (~> 0.9.0)
       wand (~> 0.4)
 
 GEM
   remote: http://rubygems.org/
   specs:
-    activesupport (3.0.3)
-    bson (1.1.5)
-    bson_ext (1.1.5)
+    activemodel (3.0.5)
+      activesupport (= 3.0.5)
+      builder (~> 2.1.2)
+      i18n (~> 0.4)
+    activesupport (3.0.5)
+    bson (1.2.4)
+    bson_ext (1.2.4)
+    builder (2.1.2)
     i18n (0.4.2)
     jnunemaker-matchy (0.4.0)
-    jnunemaker-validatable (1.8.4)
-      activesupport (>= 2.3.4)
     mime-types (1.16)
     mocha (0.9.10)
       rake
-    mongo (1.1.5)
-      bson (>= 1.1.5)
-    mongo_mapper (0.8.6)
-      activesupport (>= 2.3.4)
-      jnunemaker-validatable (~> 1.8.4)
-      plucky (~> 0.3.6)
-    plucky (0.3.6)
+    mongo (1.2.4)
+      bson (>= 1.2.4)
+    plucky (0.3.7)
       mongo (~> 1.1)
     rake (0.8.7)
     safe_shell (1.0.0)
@@ -38,12 +46,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bson_ext (~> 1.1)
+  bson_ext (~> 1.2.4)
   i18n (= 0.4.2)
   jnunemaker-matchy
   joint!
   mime-types
   mocha
-  mongo_mapper (~> 0.8.6)
+  mongo_mapper (~> 0.9.0)
   shoulda
   wand (~> 0.4)

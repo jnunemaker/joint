@@ -3,10 +3,12 @@ require 'mime/types'
 require 'wand'
 
 module Joint
-  def self.configure(model)
-    model.class_inheritable_accessor :attachment_names
-    model.attachment_names = Set.new
-    model.send(:include, model.attachment_accessor_module)
+  extend ActiveSupport::Concern
+
+  included do
+    class_inheritable_accessor :attachment_names
+    self.attachment_names = Set.new
+    include attachment_accessor_module
   end
 
   def self.name(file)

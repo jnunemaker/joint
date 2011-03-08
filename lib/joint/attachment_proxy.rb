@@ -23,6 +23,7 @@ module Joint
     def nil?
       !@instance.send("#{@name}?")
     end
+    alias_method :blank?, :nil?
 
     def grid_io
       @grid_io ||= @instance.grid.get(id)
