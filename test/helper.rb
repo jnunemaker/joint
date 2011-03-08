@@ -1,3 +1,6 @@
+require 'bundler/setup'
+Bundler.setup(:default, 'test', 'development')
+
 require 'tempfile'
 require 'pp'
 require 'shoulda'
