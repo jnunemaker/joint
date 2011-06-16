@@ -12,6 +12,10 @@ module Joint
   end
 
   def self.name(file)
+    if file.kind_of?(StringIO)
+      return ""
+    end
+    
     if file.respond_to?(:original_filename)
       file.original_filename
     else
@@ -28,6 +32,10 @@ module Joint
   end
 
   def self.type(file)
+    if file.kind_of?(StringIO)
+      return "text/plain"
+    end
+    
     return file.type if file.is_a?(Joint::IO)
     Wand.wave(file.path, :original_filename => Joint.name(file))
   end
