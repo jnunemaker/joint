@@ -6,7 +6,7 @@ module Joint
   extend ActiveSupport::Concern
 
   included do
-    class_inheritable_accessor :attachment_names
+    class_attribute :attachment_names
     self.attachment_names = Set.new
     include attachment_accessor_module
   end
