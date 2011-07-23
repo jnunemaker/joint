@@ -8,7 +8,7 @@ module Joint
       options.symbolize_keys!
       name = name.to_sym
 
-      self.attachment_names << name
+      self.attachment_names = attachment_names.dup.add(name)
 
       after_save     :save_attachments
       after_save     :destroy_nil_attachments
