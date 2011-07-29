@@ -70,7 +70,9 @@ module JointTestHelpers
   end
 
   def open_file(name)
-    File.open(File.join(File.dirname(__FILE__), 'fixtures', name), 'r')
+    f = File.open(File.join(File.dirname(__FILE__), 'fixtures', name), 'r')
+    f.binmode
+    f
   end
 
   def grid
