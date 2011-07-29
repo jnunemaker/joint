@@ -1,3 +1,5 @@
+require 'stringio'
+
 module Joint
   class IO
     attr_accessor :name, :content, :type, :size
@@ -5,10 +7,17 @@ module Joint
     def initialize(attrs={})
       attrs.each { |key, value| send("#{key}=", value) }
       @type ||= 'plain/text'
-      @size ||= @content.size unless @content.nil?
+    end
+
+    def content=(value)
+      @io = StringIO.new(value || nil)
+      @size = value ? value.size : 0
+    end
+
+    def read(*args)
+      @io.read(*args)
     end
 
     alias path name
-    alias read content
   end
 end

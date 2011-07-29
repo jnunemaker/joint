@@ -19,7 +19,7 @@ module Joint
           next unless io.respond_to?(:read)
           io.rewind if io.respond_to?(:rewind)
           grid.delete(send(name).id)
-          grid.put(io.read, {
+          grid.put(io, {
             :_id          => send(name).id,
             :filename     => send(name).name,
             :content_type => send(name).type,
