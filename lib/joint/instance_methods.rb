@@ -24,7 +24,6 @@ module Joint
             :filename     => send(name).name,
             :content_type => send(name).type,
           })
-          io.close if io.respond_to?(:close)
         end
         assigned_attachments.clear
       end
