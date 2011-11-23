@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    joint (0.6.0)
+    joint (0.6.1)
       mime-types
       mongo_mapper (~> 0.9)
       wand (~> 0.4)
@@ -24,7 +24,7 @@ GEM
     mocha (0.9.10)
       rake
     mongo (1.3.1)
-      bson (= 1.3.1)
+      bson (>= 1.3.1)
     mongo_mapper (0.10.1)
       activemodel (~> 3.0)
       activesupport (~> 3.0)
