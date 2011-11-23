@@ -11,6 +11,7 @@ module Joint
       self.attachment_names = attachment_names.dup.add(name)
 
       after_save     :save_attachments
+      before_save    :nullify_nil_attachments_attributes
       after_save     :destroy_nil_attachments
       before_destroy :destroy_all_attachments
 
@@ -27,12 +28,12 @@ module Joint
         end
 
         def #{name}?
-          !nil_attachments.include?(:#{name}) && send(:#{name}_id?)
+          !nil_attachments.has_key?(:#{name}) && send(:#{name}_id?)
         end
 
         def #{name}=(file)
           if file.nil?
-            nil_attachments << :#{name}
+            nil_attachments[:#{name}] = send("#{name}_id")
             assigned_attachments.delete(:#{name})
           else
             send("#{name}_id=", BSON::ObjectId.new) if send("#{name}_id").nil?
