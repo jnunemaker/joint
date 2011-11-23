@@ -25,7 +25,8 @@ class Test::Unit::TestCase
     exps.each_with_index do |e, i|
       error = "#{e.inspect} didn't change by #{difference}"
       error = "#{message}.\n#{error}" if message
-      assert_equal(before[i] + difference, eval(e, b), error)
+      after = eval(e, b)
+      assert_equal(before[i] + difference, after, error)
     end
   end
 
@@ -44,6 +45,16 @@ end
 
 class Asset
   include MongoMapper::Document
+  plugin Joint
+
+  key :title, String
+  attachment :image
+  attachment :file
+  has_many :embedded_assets
+end
+
+class EmbeddedAsset
+  include MongoMapper::EmbeddedDocument
   plugin Joint
 
   key :title, String

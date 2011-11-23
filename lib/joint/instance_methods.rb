@@ -10,7 +10,7 @@ module Joint
       end
 
       def nil_attachments
-        @nil_attachments ||= Set.new
+        @nil_attachments ||= {}
       end
 
       # IO must respond to read and rewind
@@ -27,21 +27,19 @@ module Joint
         end
         assigned_attachments.clear
       end
-
-      def destroy_nil_attachments
-        # currently MM does not send sets to instance as well
-        nil_attachments.each do |name|
-          grid.delete(send(name).id)
+      
+      def nullify_nil_attachments_attributes
+        nil_attachments.each_key do |name|
           send(:"#{name}_id=", nil)
           send(:"#{name}_size=", nil)
           send(:"#{name}_type=", nil)
           send(:"#{name}_name=", nil)
-          set({
-            :"#{name}_id"   => nil,
-            :"#{name}_size" => nil,
-            :"#{name}_type" => nil,
-            :"#{name}_name" => nil,
-          })
+        end
+      end
+
+      def destroy_nil_attachments
+        nil_attachments.each_value do |id|
+          grid.delete(id)
         end
 
         nil_attachments.clear
