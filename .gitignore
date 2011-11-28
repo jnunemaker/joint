@@ -5,3 +5,4 @@ doc/*
 pkg/*
 .bundle
 *.swp
+Gemfile.lock
