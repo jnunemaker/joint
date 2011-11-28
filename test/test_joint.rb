@@ -285,10 +285,6 @@ class JointTest < Test::Unit::TestCase
     end
     subject { @doc }
 
-#     should "not change attachment id" do
-#       subject.file_id_changed?.should be(false)
-#     end
-
     should "update keys" do
       subject.file_name.should == 'test2.txt'
       subject.file_type.should == "text/plain"
