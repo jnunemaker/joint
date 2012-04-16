@@ -17,6 +17,10 @@ module Joint
     def read(*args)
       @io.read(*args)
     end
+    
+    def rewind
+      @io.rewind if @io.respond_to?(:rewind)
+    end
 
     alias path name
   end

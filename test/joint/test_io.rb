@@ -25,4 +25,15 @@ class IOTest < Test::Unit::TestCase
       Joint::IO.new(:content => 'Testing').read.should == 'Testing'
     end
   end
+  
+  context "#rewind" do
+    should "rewinds the io to position 0" do
+      io = Joint::IO.new(:content => 'Testing')
+      io.read.should == 'Testing'
+      io.read.should == ''
+      io.rewind
+      io.read.should == 'Testing'
+    end
+  end
+  
 end
