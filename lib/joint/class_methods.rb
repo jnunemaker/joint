@@ -37,9 +37,9 @@ module Joint
             assigned_attachments.delete(:#{name})
           else
             send("#{name}_id=", BSON::ObjectId.new) if send("#{name}_id").nil?
-            send("#{name}_name=", Joint.name(file))
-            send("#{name}_size=", Joint.size(file))
-            send("#{name}_type=", Joint.type(file))
+            send("#{name}_name=", Joint::FileHelpers.name(file))
+            send("#{name}_size=", Joint::FileHelpers.size(file))
+            send("#{name}_type=", Joint::FileHelpers.type(file))
             assigned_attachments[:#{name}] = file
             nil_attachments.delete(:#{name})
           end
