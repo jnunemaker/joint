@@ -12,27 +12,6 @@ module Joint
     include attachment_accessor_module
   end
 
-  def self.name(file)
-    if file.respond_to?(:original_filename)
-      file.original_filename
-    else
-      File.basename(file.path)
-    end
-  end
-
-  def self.size(file)
-    if file.respond_to?(:size)
-      file.size
-    else
-      File.size(file)
-    end
-  end
-
-  def self.type(file)
-    return file.type if file.is_a?(Joint::IO)
-    Wand.wave(file.path, :original_filename => Joint.name(file))
-  end
-
 private
   def self.blank?(str)
     str.nil? || str !~ /\S/
@@ -43,3 +22,4 @@ require 'joint/class_methods'
 require 'joint/instance_methods'
 require 'joint/attachment_proxy'
 require 'joint/io'
+require 'joint/file_helpers'
