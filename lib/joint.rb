@@ -1,6 +1,7 @@
 require 'set'
 require 'mime/types'
 require 'wand'
+require 'active_support/concern'
 
 module Joint
   extend ActiveSupport::Concern
