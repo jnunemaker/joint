@@ -1,4 +1,6 @@
-= Joint
+= DEAD AND UNMAINTAINED
+
+== Joint
 
 MongoMapper and GridFS joined in file upload love.
 
