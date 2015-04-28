@@ -1,3 +1,6 @@
+require 'bundler/setup'
+Bundler.setup(:default, 'test', 'development')
+
 require 'tempfile'
 require 'pp'
 require 'shoulda'
@@ -22,7 +25,8 @@ class Test::Unit::TestCase
     exps.each_with_index do |e, i|
       error = "#{e.inspect} didn't change by #{difference}"
       error = "#{message}.\n#{error}" if message
-      assert_equal(before[i] + difference, eval(e, b), error)
+      after = eval(e, b)
+      assert_equal(before[i] + difference, after, error)
     end
   end
 
@@ -36,5 +40,57 @@ class Test::Unit::TestCase
 
   def assert_no_grid_difference(&block)
     assert_grid_difference(0, &block)
+  end
+end
+
+class Asset
+  include MongoMapper::Document
+  plugin Joint
+
+  key :title, String
+  attachment :image
+  attachment :file
+  has_many :embedded_assets
+end
+
+class EmbeddedAsset
+  include MongoMapper::EmbeddedDocument
+  plugin Joint
+
+  key :title, String
+  attachment :image
+  attachment :file
+end
+
+class BaseModel
+  include MongoMapper::Document
+  plugin Joint
+  attachment :file
+end
+
+class Image < BaseModel; attachment :image end
+class Video < BaseModel; attachment :video end
+
+module JointTestHelpers
+  def all_files
+    [@file, @image, @image2, @test1, @test2]
+  end
+
+  def rewind_files
+    all_files.each { |file| file.rewind }
+  end
+
+  def open_file(name)
+    f = File.open(File.join(File.dirname(__FILE__), 'fixtures', name), 'r')
+    f.binmode
+    f
+  end
+
+  def grid
+    @grid ||= Mongo::Grid.new(MongoMapper.database)
+  end
+
+  def key_names
+    [:id, :name, :type, :size]
   end
 end
