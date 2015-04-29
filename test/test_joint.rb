@@ -1,10 +1,9 @@
 require 'helper'
 
-class JointTest < Test::Unit::TestCase
+describe "JointTest" do
   include JointTestHelpers
 
-  def setup
-    super
+  before do
     @file   = open_file('unixref.pdf')
     @image  = open_file('mr_t.jpg')
     @image2 = open_file('harmony.png')
@@ -12,202 +11,202 @@ class JointTest < Test::Unit::TestCase
     @test2  = open_file('test2.txt')
   end
 
-  def teardown
+  after do
     all_files.each { |file| file.close }
   end
 
-  context "Using Joint plugin" do
-    should "add each attachment to attachment_names" do
-      Asset.attachment_names.should == Set.new([:image, :file])
-      EmbeddedAsset.attachment_names.should == Set.new([:image, :file])
+  describe "Using Joint plugin" do
+    it "add each attachment to attachment_names" do
+      Asset.attachment_names.must_equal Set.new([:image, :file])
+      EmbeddedAsset.attachment_names.must_equal Set.new([:image, :file])
     end
 
-    should "add keys for each attachment" do
+    it "add keys for each attachment" do
       key_names.each do |key|
-        Asset.keys.should include("image_#{key}")
-        Asset.keys.should include("file_#{key}")
-        EmbeddedAsset.keys.should include("image_#{key}")
-        EmbeddedAsset.keys.should include("file_#{key}")
+        Asset.keys.must_include "image_#{key}"
+        Asset.keys.must_include "file_#{key}"
+        EmbeddedAsset.keys.must_include "image_#{key}"
+        EmbeddedAsset.keys.must_include "file_#{key}"
       end
     end
 
-    should "add memoized accessors module" do
-      Asset.attachment_accessor_module.should be_instance_of(Module)
-      EmbeddedAsset.attachment_accessor_module.should be_instance_of(Module)
+    it "add memoized accessors module" do
+      Asset.attachment_accessor_module.must_be_instance_of(Module)
+      EmbeddedAsset.attachment_accessor_module.must_be_instance_of(Module)
     end
 
-    context "with inheritance" do
-      should "add attachment to attachment_names" do
-        BaseModel.attachment_names.should == Set.new([:file])
+    describe "with inheritance" do
+      it "add attachment to attachment_names" do
+        BaseModel.attachment_names.must_equal Set.new([:file])
       end
 
-      should "inherit attachments from superclass, but not share other inherited class attachments" do
-        Image.attachment_names.should == Set.new([:file, :image])
-        Video.attachment_names.should == Set.new([:file, :video])
+      it "inherit attachments from superclass, but not share other inherited class attachments" do
+        Image.attachment_names.must_equal Set.new([:file, :image])
+        Video.attachment_names.must_equal Set.new([:file, :video])
       end
 
-      should "add inherit keys from superclass" do
+      it "add inherit keys from superclass" do
         key_names.each do |key|
-          BaseModel.keys.should include("file_#{key}")
-          Image.keys.should     include("file_#{key}")
-          Image.keys.should     include("image_#{key}")
-          Video.keys.should     include("file_#{key}")
-          Video.keys.should     include("video_#{key}")
+          BaseModel.keys.must_include("file_#{key}")
+          Image.keys.must_include("file_#{key}")
+          Image.keys.must_include("image_#{key}")
+          Video.keys.must_include("file_#{key}")
+          Video.keys.must_include("video_#{key}")
         end
       end
     end
   end
 
-  context "Assigning new attachments to document" do
-    setup do
+  describe "Assigning new attachments to document" do
+    before do
       @doc = Asset.create(:image => @image, :file => @file)
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "assign GridFS content_type" do
-      grid.get(subject.image_id).content_type.should == 'image/jpeg'
-      grid.get(subject.file_id).content_type.should == 'application/pdf'
+    it "assign GridFS content_type" do
+      grid.get(subject.image_id).content_type.must_equal 'image/jpeg'
+      grid.get(subject.file_id).content_type.must_equal 'application/pdf'
     end
 
-    should "assign joint keys" do
-      subject.image_size.should  == 13661
-      subject.file_size.should   == 68926
+    it "assign joint keys" do
+      subject.image_size.must_equal 13661
+      subject.file_size.must_equal 68926
 
-      subject.image_type.should  == "image/jpeg"
-      subject.file_type.should   == "application/pdf"
+      subject.image_type.must_equal "image/jpeg"
+      subject.file_type.must_equal "application/pdf"
 
-      subject.image_id.should_not be_nil
-      subject.file_id.should_not be_nil
+      subject.image_id.wont_be_nil
+      subject.file_id.wont_be_nil
 
-      subject.image_id.should be_instance_of(BSON::ObjectId)
-      subject.file_id.should be_instance_of(BSON::ObjectId)
+      subject.image_id.must_be_instance_of(BSON::ObjectId)
+      subject.file_id.must_be_instance_of(BSON::ObjectId)
     end
 
-    should "allow accessing keys through attachment proxy" do
-      subject.image.size.should  == 13661
-      subject.file.size.should   == 68926
+    it "allow accessing keys through attachment proxy" do
+      subject.image.size.must_equal 13661
+      subject.file.size.must_equal 68926
 
-      subject.image.type.should  == "image/jpeg"
-      subject.file.type.should   == "application/pdf"
+      subject.image.type.must_equal "image/jpeg"
+      subject.file.type.must_equal "application/pdf"
 
-      subject.image.id.should_not be_nil
-      subject.file.id.should_not be_nil
+      subject.image.id.wont_be_nil
+      subject.file.id.wont_be_nil
 
-      subject.image.id.should be_instance_of(BSON::ObjectId)
-      subject.file.id.should be_instance_of(BSON::ObjectId)
+      subject.image.id.must_be_instance_of(BSON::ObjectId)
+      subject.file.id.must_be_instance_of(BSON::ObjectId)
     end
 
-    should "proxy unknown methods to GridIO object" do
-      subject.image.files_id.should      == subject.image_id
-      subject.image.content_type.should  == 'image/jpeg'
-      subject.image.filename.should      == 'mr_t.jpg'
-      subject.image.file_length.should   == 13661
+    it "proxy unknown methods to GridIO object" do
+      subject.image.files_id.must_equal subject.image_id
+      subject.image.content_type.must_equal 'image/jpeg'
+      subject.image.filename.must_equal 'mr_t.jpg'
+      subject.image.file_length.must_equal 13661
     end
 
-    should "assign file name from path if original file name not available" do
-      subject.image_name.should  == 'mr_t.jpg'
-      subject.file_name.should   == 'unixref.pdf'
+    it "assign file name from path if original file name not available" do
+      subject.image_name.must_equal 'mr_t.jpg'
+      subject.file_name.must_equal 'unixref.pdf'
     end
 
-    should "save attachment contents correctly" do
-      subject.file.read.should   == @file.read
-      subject.image.read.should  == @image.read
+    it "save attachment contents correctly" do
+      subject.file.read.must_equal @file.read
+      subject.image.read.must_equal @image.read
     end
 
-    should "know that attachment exists" do
-      subject.image?.should be(true)
-      subject.file?.should be(true)
+    it "know that attachment exists" do
+      subject.image?.must_equal(true)
+      subject.file?.must_equal(true)
     end
 
-    should "respond with false when asked if the attachment is blank?" do
-      subject.image.blank?.should be(false)
-      subject.file.blank?.should be(false)
+    it "respond with false when asked if the attachment is blank?" do
+      subject.image.blank?.must_equal(false)
+      subject.file.blank?.must_equal(false)
     end
 
-    should "clear assigned attachments so they don't get uploaded twice" do
+    it "clear assigned attachments so they don't get uploaded twice" do
       Mongo::Grid.any_instance.expects(:put).never
       subject.save
     end
   end
 
-  context "Assigning new attachments to embedded document" do
-    setup do
+  describe "Assigning new attachments to embedded document" do
+    before do
       @asset = Asset.new
       @doc = @asset.embedded_assets.build(:image => @image, :file => @file)
       @asset.save!
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "assign GridFS content_type" do
-      grid.get(subject.image_id).content_type.should == 'image/jpeg'
-      grid.get(subject.file_id).content_type.should == 'application/pdf'
+    it "assign GridFS content_type" do
+      grid.get(subject.image_id).content_type.must_equal 'image/jpeg'
+      grid.get(subject.file_id).content_type.must_equal 'application/pdf'
     end
 
-    should "assign joint keys" do
-      subject.image_size.should  == 13661
-      subject.file_size.should   == 68926
+    it "assign joint keys" do
+      subject.image_size.must_equal 13661
+      subject.file_size.must_equal 68926
 
-      subject.image_type.should  == "image/jpeg"
-      subject.file_type.should   == "application/pdf"
+      subject.image_type.must_equal "image/jpeg"
+      subject.file_type.must_equal "application/pdf"
 
-      subject.image_id.should_not be_nil
-      subject.file_id.should_not be_nil
+      subject.image_id.wont_be_nil
+      subject.file_id.wont_be_nil
 
-      subject.image_id.should be_instance_of(BSON::ObjectId)
-      subject.file_id.should be_instance_of(BSON::ObjectId)
+      subject.image_id.must_be_instance_of(BSON::ObjectId)
+      subject.file_id.must_be_instance_of(BSON::ObjectId)
     end
 
-    should "allow accessing keys through attachment proxy" do
-      subject.image.size.should  == 13661
-      subject.file.size.should   == 68926
+    it "allow accessing keys through attachment proxy" do
+      subject.image.size.must_equal 13661
+      subject.file.size.must_equal 68926
 
-      subject.image.type.should  == "image/jpeg"
-      subject.file.type.should   == "application/pdf"
+      subject.image.type.must_equal "image/jpeg"
+      subject.file.type.must_equal "application/pdf"
 
-      subject.image.id.should_not be_nil
-      subject.file.id.should_not be_nil
+      subject.image.id.wont_be_nil
+      subject.file.id.wont_be_nil
 
-      subject.image.id.should be_instance_of(BSON::ObjectId)
-      subject.file.id.should be_instance_of(BSON::ObjectId)
+      subject.image.id.must_be_instance_of(BSON::ObjectId)
+      subject.file.id.must_be_instance_of(BSON::ObjectId)
     end
 
-    should "proxy unknown methods to GridIO object" do
-      subject.image.files_id.should      == subject.image_id
-      subject.image.content_type.should  == 'image/jpeg'
-      subject.image.filename.should      == 'mr_t.jpg'
-      subject.image.file_length.should   == 13661
+    it "proxy unknown methods to GridIO object" do
+      subject.image.files_id.must_equal subject.image_id
+      subject.image.content_type.must_equal 'image/jpeg'
+      subject.image.filename.must_equal 'mr_t.jpg'
+      subject.image.file_length.must_equal 13661
     end
 
-    should "assign file name from path if original file name not available" do
-      subject.image_name.should  == 'mr_t.jpg'
-      subject.file_name.should   == 'unixref.pdf'
+    it "assign file name from path if original file name not available" do
+      subject.image_name.must_equal 'mr_t.jpg'
+      subject.file_name.must_equal 'unixref.pdf'
     end
 
-    should "save attachment contents correctly" do
-      subject.file.read.should   == @file.read
-      subject.image.read.should  == @image.read
+    it "save attachment contents correctly" do
+      subject.file.read.must_equal @file.read
+      subject.image.read.must_equal @image.read
     end
 
-    should "know that attachment exists" do
-      subject.image?.should be(true)
-      subject.file?.should be(true)
+    it "know that attachment exists" do
+      subject.image?.must_equal(true)
+      subject.file?.must_equal(true)
     end
 
-    should "respond with false when asked if the attachment is blank?" do
-      subject.image.blank?.should be(false)
-      subject.file.blank?.should be(false)
+    it "respond with false when asked if the attachment is blank?" do
+      subject.image.blank?.must_equal(false)
+      subject.file.blank?.must_equal(false)
     end
 
-    should "clear assigned attachments so they don't get uploaded twice" do
+    it "clear assigned attachments so they don't get uploaded twice" do
       Mongo::Grid.any_instance.expects(:put).never
       subject.save
     end
   end
 
-  context "Updating existing attachment" do
-    setup do
+  describe "Updating existing attachment" do
+    before do
       @doc = Asset.create(:file => @test1)
       assert_no_grid_difference do
         @doc.file = @test2
@@ -215,28 +214,28 @@ class JointTest < Test::Unit::TestCase
       end
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "not change attachment id" do
-      subject.file_id_changed?.should be(false)
+    it "not change attachment id" do
+      subject.file_id_changed?.must_equal(false)
     end
 
-    should "update keys" do
-      subject.file_name.should == 'test2.txt'
-      subject.file_type.should == "text/plain"
-      subject.file_size.should == 5
+    it "update keys" do
+      subject.file_name.must_equal 'test2.txt'
+      subject.file_type.must_equal "text/plain"
+      subject.file_size.must_equal 5
     end
 
-    should "update GridFS" do
-      grid.get(subject.file_id).filename.should     == 'test2.txt'
-      grid.get(subject.file_id).content_type.should == 'text/plain'
-      grid.get(subject.file_id).file_length.should  == 5
-      grid.get(subject.file_id).read.should         == @test2.read
+    it "update GridFS" do
+      grid.get(subject.file_id).filename.must_equal 'test2.txt'
+      grid.get(subject.file_id).content_type.must_equal 'text/plain'
+      grid.get(subject.file_id).file_length.must_equal 5
+      grid.get(subject.file_id).read.must_equal @test2.read
     end
   end
 
-  context "Updating existing attachment in embedded document" do
-    setup do
+  describe "Updating existing attachment in embedded document" do
+    before do
       @asset = Asset.new
       @doc = @asset.embedded_assets.build(:file => @test1)
       @asset.save!
@@ -246,42 +245,42 @@ class JointTest < Test::Unit::TestCase
       end
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "update keys" do
-      subject.file_name.should == 'test2.txt'
-      subject.file_type.should == "text/plain"
-      subject.file_size.should == 5
+    it "update keys" do
+      subject.file_name.must_equal 'test2.txt'
+      subject.file_type.must_equal "text/plain"
+      subject.file_size.must_equal 5
     end
 
-    should "update GridFS" do
-      grid.get(subject.file_id).filename.should     == 'test2.txt'
-      grid.get(subject.file_id).content_type.should == 'text/plain'
-      grid.get(subject.file_id).file_length.should  == 5
-      grid.get(subject.file_id).read.should         == @test2.read
+    it "update GridFS" do
+      grid.get(subject.file_id).filename.must_equal 'test2.txt'
+      grid.get(subject.file_id).content_type.must_equal 'text/plain'
+      grid.get(subject.file_id).file_length.must_equal 5
+      grid.get(subject.file_id).read.must_equal @test2.read
     end
   end
 
-  context "Updating document but not attachments" do
-    setup do
+  describe "Updating document but not attachments" do
+    before do
       @doc = Asset.create(:image => @image)
       @doc.update_attributes(:title => 'Updated')
       @doc.reload
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "not affect attachment" do
-      subject.image.read.should == @image.read
+    it "not affect attachment" do
+      subject.image.read.must_equal @image.read
     end
 
-    should "update document attributes" do
-      subject.title.should == 'Updated'
+    it "update document attributes" do
+      subject.title.must_equal 'Updated'
     end
   end
 
-  context "Updating embedded document but not attachments" do
-    setup do
+  describe "Updating embedded document but not attachments" do
+    before do
       @asset = Asset.new
       @doc = @asset.embedded_assets.build(:image => @image)
       @doc.update_attributes(:title => 'Updated')
@@ -289,59 +288,59 @@ class JointTest < Test::Unit::TestCase
       @doc = @asset.embedded_assets.first
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "not affect attachment" do
-      subject.image.read.should == @image.read
+    it "not affect attachment" do
+      subject.image.read.must_equal @image.read
     end
 
-    should "update document attributes" do
-      subject.title.should == 'Updated'
+    it "update document attributes" do
+      subject.title.must_equal 'Updated'
     end
   end
 
-  context "Assigning file where file pointer is not at beginning" do
-    setup do
+  describe "Assigning file where file pointer is not at beginning" do
+    before do
       @image.read
       @doc = Asset.create(:image => @image)
       @doc.reload
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "rewind and correctly store contents" do
-      subject.image.read.should == @image.read
+    it "rewind and correctly store contents" do
+      subject.image.read.must_equal @image.read
     end
   end
 
-  context "Setting attachment to nil" do
-    setup do
+  describe "Setting attachment to nil" do
+    before do
       @doc = Asset.create(:image => @image)
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "delete attachment after save" do
+    it "delete attachment after save" do
       assert_no_grid_difference   { subject.image = nil }
       assert_grid_difference(-1)  { subject.save }
     end
 
-    should "know that the attachment has been nullified" do
+    it "know that the attachment has been nullified" do
       subject.image = nil
-      subject.image?.should be(false)
+      subject.image?.must_equal(false)
     end
 
-    should "respond with true when asked if the attachment is nil?" do
+    it "respond with true when asked if the attachment is nil?" do
       subject.image = nil
-      subject.image.nil?.should be(true)
+      subject.image.nil?.must_equal(true)
     end
 
-    should "respond with true when asked if the attachment is blank?" do
+    it "respond with true when asked if the attachment is blank?" do
       subject.image = nil
-      subject.image.blank?.should be(true)
+      subject.image.blank?.must_equal(true)
     end
 
-    should "clear nil attachments after save and not attempt to delete again" do
+    it "clear nil attachments after save and not attempt to delete again" do
       Mongo::Grid.any_instance.expects(:delete).once
       subject.image = nil
       subject.save
@@ -349,7 +348,7 @@ class JointTest < Test::Unit::TestCase
       subject.save
     end
 
-    should "clear id, name, type, size" do
+    it "clear id, name, type, size" do
       subject.image = nil
       subject.save
       assert_nil subject.image_id
@@ -364,36 +363,36 @@ class JointTest < Test::Unit::TestCase
     end
   end
 
-  context "Setting attachment to nil on embedded document" do
-    setup do
+  describe "Setting attachment to nil on embedded document" do
+    before do
       @asset = Asset.new
       @doc = @asset.embedded_assets.build(:image => @image)
       @asset.save!
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "delete attachment after save" do
+    it "delete attachment after save" do
       assert_no_grid_difference   { subject.image = nil }
       assert_grid_difference(-1)  { subject.save }
     end
 
-    should "know that the attachment has been nullified" do
+    it "know that the attachment has been nullified" do
       subject.image = nil
-      subject.image?.should be(false)
+      subject.image?.must_equal(false)
     end
 
-    should "respond with true when asked if the attachment is nil?" do
+    it "respond with true when asked if the attachment is nil?" do
       subject.image = nil
-      subject.image.nil?.should be(true)
+      subject.image.nil?.must_equal(true)
     end
 
-    should "respond with true when asked if the attachment is blank?" do
+    it "respond with true when asked if the attachment is blank?" do
       subject.image = nil
-      subject.image.blank?.should be(true)
+      subject.image.blank?.must_equal(true)
     end
 
-    should "clear nil attachments after save and not attempt to delete again" do
+    it "clear nil attachments after save and not attempt to delete again" do
       Mongo::Grid.any_instance.expects(:delete).once
       subject.image = nil
       subject.save
@@ -401,7 +400,7 @@ class JointTest < Test::Unit::TestCase
       subject.save
     end
 
-    should "clear id, name, type, size" do
+    it "clear id, name, type, size" do
       subject.image = nil
       subject.save
       assert_nil subject.image_id
@@ -416,60 +415,60 @@ class JointTest < Test::Unit::TestCase
     end
   end
 
-  context "Retrieving attachment that does not exist" do
-    setup do
+  describe "Retrieving attachment that does not exist" do
+    before do
       @doc = Asset.create
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "know that the attachment is not present" do
-      subject.image?.should be(false)
+    it "know that the attachment is not present" do
+      subject.image?.must_equal(false)
     end
 
-    should "respond with true when asked if the attachment is nil?" do
-      subject.image.nil?.should be(true)
+    it "respond with true when asked if the attachment is nil?" do
+      subject.image.nil?.must_equal(true)
     end
 
-    should "raise Mongo::GridFileNotFound" do
+    it "raise Mongo::GridFileNotFound" do
       assert_raises(Mongo::GridFileNotFound) { subject.image.read }
     end
   end
 
-  context "Destroying a document" do
-    setup do
+  describe "Destroying a document" do
+    before do
       @doc = Asset.create(:image => @image)
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "remove files from grid fs as well" do
+    it "remove files from grid fs as well" do
       assert_grid_difference(-1) { subject.destroy }
     end
   end
 
-  context "Destroying an embedded document's _root_document" do
-    setup do
+  describe "Destroying an embedded document's _root_document" do
+    before do
       @asset = Asset.new
       @doc = @asset.embedded_assets.build(:image => @image)
       @doc.save!
       rewind_files
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "remove files from grid fs as well" do
+    it "remove files from grid fs as well" do
       assert_grid_difference(-1) { subject._root_document.destroy }
     end
   end
 
   # What about when an embedded document is removed?
 
-  context "Assigning file name" do
-    should "default to path" do
-      Asset.create(:image => @image).image.name.should == 'mr_t.jpg'
+  describe "Assigning file name" do
+    it "default to path" do
+      Asset.create(:image => @image).image.name.must_equal 'mr_t.jpg'
     end
 
-    should "use original_filename if available" do
+    it "use original_filename if available" do
       def @image.original_filename
         'testing.txt'
       end
@@ -478,8 +477,8 @@ class JointTest < Test::Unit::TestCase
     end
   end
 
-  context "Validating attachment presence" do
-    setup do
+  describe "Validating attachment presence" do
+    before do
       @model_class = Class.new do
         include MongoMapper::Document
         plugin Joint
@@ -489,23 +488,32 @@ class JointTest < Test::Unit::TestCase
       end
     end
 
-    should "work" do
+    it "work" do
       model = @model_class.new
-      model.should_not be_valid
+      refute model.valid?
 
       model.file = @file
-      model.should be_valid
+      assert model.valid?
 
       model.file = nil
-      model.should_not be_valid
+      refute model.valid?
 
       model.file = @image
-      model.should be_valid
+      assert model.valid?
     end
   end
 
-  context "Assigning joint io instance" do
-    setup do
+  describe "Assigning new attachments to a safe document" do
+    it "proxies the safe setting" do
+      doc = SafeAsset.new(:image => @image, :file => @file)
+      rewind_files
+      Mongo::Grid.any_instance.expects(:put).twice.with(anything, has_entries(safe: true))
+      doc.save
+    end
+  end
+
+  describe "Assigning joint io instance" do
+    before do
       io = Joint::IO.new({
         :name    => 'foo.txt',
         :type    => 'plain/text',
@@ -514,41 +522,41 @@ class JointTest < Test::Unit::TestCase
       @asset = Asset.create(:file => io)
     end
 
-    should "work" do
-      @asset.file_name.should == 'foo.txt'
-      @asset.file_size.should == 16
-      @asset.file_type.should == 'plain/text'
-      @asset.file.read.should == 'This is my stuff'
+    it "work" do
+      @asset.file_name.must_equal 'foo.txt'
+      @asset.file_size.must_equal 16
+      @asset.file_type.must_equal 'plain/text'
+      @asset.file.read.must_equal 'This is my stuff'
     end
   end
 
-  context "A font file" do
-    setup do
+  describe "A font file" do
+    before do
       @file = open_file('font.eot')
       @doc = Asset.create(:file => @file)
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "assign joint keys" do
-      subject.file_size.should   == 17610
-      subject.file_type.should   == "application/octet-stream"
-      subject.file_id.should_not be_nil
-      subject.file_id.should be_instance_of(BSON::ObjectId)
+    it "assign joint keys" do
+      subject.file_size.must_equal 17610
+      subject.file_type.must_equal "application/vnd.ms-fontobject"
+      subject.file_id.wont_be_nil
+      subject.file_id.must_be_instance_of(BSON::ObjectId)
     end
   end
 
-  context "A music file" do
-    setup do
+  describe "A music file" do
+    before do
       @file = open_file('example.m4r')
       @doc = Asset.create(:file => @file)
     end
-    subject { @doc }
+    let(:subject) { @doc }
 
-    should "assign joint keys" do
-      subject.file_size.should   == 50790
-      subject.file_type.should   == "audio/mp4"
-      subject.file_id.should_not be_nil
-      subject.file_id.should be_instance_of(BSON::ObjectId)
+    it "assign joint keys" do
+      subject.file_size.must_equal 50790
+      subject.file_type.must_equal "audio/mp4"
+      subject.file_id.wont_be_nil
+      subject.file_id.must_be_instance_of(BSON::ObjectId)
     end
   end
 end

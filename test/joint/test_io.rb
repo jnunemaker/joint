@@ -1,38 +1,39 @@
 require 'helper'
 
-class IOTest < Test::Unit::TestCase
-  context "#initialize" do
-    should "set attributes from hash" do
-      Joint::IO.new(:name => 'foo').name.should == 'foo'
+describe IO do
+
+  describe "#initialize" do
+    it "set attributes from hash" do
+      Joint::IO.new(:name => 'foo').name.must_equal 'foo'
     end
   end
 
-  should "default type to plain text" do
-    Joint::IO.new.type.should == 'plain/text'
+  it "default type to plain text" do
+    Joint::IO.new.type.must_equal 'plain/text'
   end
 
-  should "default size to content size" do
+  it "default size to content size" do
     content = 'This is my content'
-    Joint::IO.new(:content => content).size.should == content.size
+    Joint::IO.new(:content => content).size.must_equal content.size
   end
 
-  should "alias path to name" do
-    Joint::IO.new(:name => 'foo').path.should == 'foo'
+  it "alias path to name" do
+    Joint::IO.new(:name => 'foo').path.must_equal 'foo'
   end
 
-  context "#read" do
-    should "return content" do
-      Joint::IO.new(:content => 'Testing').read.should == 'Testing'
+  describe "#read" do
+    it "return content" do
+      Joint::IO.new(:content => 'Testing').read.must_equal 'Testing'
     end
   end
   
-  context "#rewind" do
-    should "rewinds the io to position 0" do
+  describe "#rewind" do
+    it "rewinds the io to position 0" do
       io = Joint::IO.new(:content => 'Testing')
-      io.read.should == 'Testing'
-      io.read.should == ''
+      io.read.must_equal 'Testing'
+      io.read.must_equal ''
       io.rewind
-      io.read.should == 'Testing'
+      io.read.must_equal 'Testing'
     end
   end
   

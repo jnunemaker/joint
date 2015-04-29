@@ -22,6 +22,7 @@ module Joint
           :_id          => send(name).id,
           :filename     => send(name).name,
           :content_type => send(name).type,
+          :safe         => safe?
         })
       end
       assigned_attachments.clear
@@ -46,5 +47,9 @@ module Joint
 
     def destroy_all_attachments
       self.class.attachment_names.map { |name| grid.delete(send(name).id) }
+    end
+
+    def safe?
+      _root_document.class.safe?
     end
 end
