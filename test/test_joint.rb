@@ -530,7 +530,7 @@ describe "JointTest" do
 
     it "assign joint keys" do
       subject.file_size.must_equal 17610
-      subject.file_type.must_equal "application/octet-stream"
+      subject.file_type.must_equal "application/vnd.ms-fontobject"
       subject.file_id.wont_be_nil
       subject.file_id.must_be_instance_of(BSON::ObjectId)
     end
