@@ -461,7 +461,7 @@ describe "JointTest" do
     end
   end
 
-#   # What about when an embedded document is removed?
+  # What about when an embedded document is removed?
 
   describe "Assigning file name" do
     it "default to path" do
@@ -500,6 +500,15 @@ describe "JointTest" do
 
       model.file = @image
       assert model.valid?
+    end
+  end
+
+  describe "Assigning new attachments to a safe document" do
+    it "proxies the safe setting" do
+      doc = SafeAsset.new(:image => @image, :file => @file)
+      rewind_files
+      Mongo::Grid.any_instance.expects(:put).twice.with(anything, has_entries(safe: true))
+      doc.save
     end
   end
 

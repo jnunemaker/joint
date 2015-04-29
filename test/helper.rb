@@ -54,6 +54,10 @@ class Asset
   has_many :embedded_assets
 end
 
+class SafeAsset < Asset
+  safe
+end
+
 class EmbeddedAsset
   include MongoMapper::EmbeddedDocument
   plugin Joint
